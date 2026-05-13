@@ -8,9 +8,15 @@ https://docs.djangoproject.com/en/6.0/howto/deployment/asgi/
 """
 
 import os
+from  decouple import config
+
 
 from django.core.asgi import get_asgi_application
+mode = config('MODE')
+if mode == 'developmnet':   
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'complaint_sys.settings.development')
+else:
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'complaint_sys.settings.production')
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'complaint_sys.settings')
 
 application = get_asgi_application()
