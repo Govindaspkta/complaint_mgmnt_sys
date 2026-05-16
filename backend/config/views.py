@@ -1,9 +1,9 @@
 import logging
 from rest_framework_simplejwt.authentication import JWTAuthentication
-# from rest_framework.views import APIView
-# from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-# from config.permission import IsSuperUser
+from config.permission import IsSuperUser
 
 logger = logging.getLogger("django") 
 
@@ -19,7 +19,7 @@ class APIResponse:
     
     @staticmethod
     def error(message="Error", errors=None, status_code=400):
-        logger.error(f"{message} | Erros:{errors}", exc_info=True)
+        logger.error(f"{message} | Errors:{errors}", exc_info=True)
         return Response({
             "success":False,
             "message":message,
