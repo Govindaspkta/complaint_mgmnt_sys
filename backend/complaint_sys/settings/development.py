@@ -3,6 +3,9 @@ from decouple import config
 # 
 ALLOWED_HOSTS = ['*']
 
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+
+
 CORS_ORIGIN_ALLOW_ALL=True
 CORS_ALLOW_CREDENTIALS =True
 

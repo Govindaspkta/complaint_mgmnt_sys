@@ -1,7 +1,7 @@
 from django.db import models
 from config.models import BaseModel
 
-class UserProfile(BaseModel):
+class AetherixProfile(BaseModel):
 
     user = models.OneToOneField(
         'authx.AetherixUsers',
