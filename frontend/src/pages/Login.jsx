@@ -21,37 +21,48 @@ export default function Login() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError('');
+ const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    try {
-      const res = await axios.post(
-        'http://127.0.0.1:8000/authx/login/',
-        formData,
-        { withCredentials: true } // IMPORTANT for refresh cookie
-      );
-      console.log(formData)
-      const { access, user } = res.data.data;
+  setIsLoading(true);
+  setError('');
 
-      // store access token
-      localStorage.setItem("access_token", access);
-      localStorage.setItem("user", JSON.stringify(user));
+  try {
 
-      alert("✅ Login Successful!");
-      navigate("/dashboard"); // or home
-e
+    const res = await axios.post(
+      'http://127.0.0.1:8000/authx/login/',
+      formData,
+      {
+        withCredentials: true
+      }
+    );
 
-    } catch (err) {
-      setError(
-        err.response?.data?.message ||
-        "Invalid credentials"
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    const { access, user } = res.data.data;
+
+    // 🔥 Store auth data
+    localStorage.setItem("access_token", access);
+    localStorage.setItem("user", JSON.stringify(user));
+
+    // 🔥 Notify navbar instantly
+    window.dispatchEvent(new Event("storage"));
+
+    alert("✅ Login Successful!");
+
+    navigate("/dashboard");
+
+  } catch (err) {
+
+    setError(
+      err.response?.data?.message ||
+      "Invalid credentials"
+    );
+
+  } finally {
+
+    setIsLoading(false);
+
+  }
+};
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center bg-gray-50 px-4">
