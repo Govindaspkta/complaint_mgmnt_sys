@@ -5,6 +5,7 @@ import SubmitComplaint from './pages/SubmitComplaint';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ProfileCompletion from './pages/ProfileCompletion';
+import MyComplaints  from './pages/MyComplaints';
 
 function App() {
   return (
@@ -17,6 +18,9 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
             <Route path="/profile-completion" element={<ProfileCompletion />} />
+            <Route path="/my-complaints" element={<MyComplaints />} />
+
+
 
           <Route path="/complaints" element={<div className="p-20 text-center text-3xl">Public Complaints Page - Coming Soon</div>} />
         </Routes>

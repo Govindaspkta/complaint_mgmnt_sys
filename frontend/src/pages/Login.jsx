@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { LogIn, Eye, EyeOff } from 'lucide-react';
+import { GoogleLogin } from '@react-oauth/google';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -10,8 +11,6 @@ export default function Login() {
     username: '',
     password: '',
   });
-  console.log(formData)
-
 
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -21,48 +20,64 @@ export default function Login() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
+  // 🔥 Normal login
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
 
-  setIsLoading(true);
-  setError('');
+    try {
+      const res = await axios.post(
+        'http://127.0.0.1:8000/authx/login/',
+        formData,
+        { withCredentials: true }
+      );
 
-  try {
+      const { access, user } = res.data.data;
 
-    const res = await axios.post(
-      'http://127.0.0.1:8000/authx/login/',
-      formData,
-      {
-        withCredentials: true
-      }
-    );
+      localStorage.setItem("access_token", access);
+      localStorage.setItem("user", JSON.stringify(user));
 
-    const { access, user } = res.data.data;
+      window.dispatchEvent(new Event("storage"));
 
-    // 🔥 Store auth data
-    localStorage.setItem("access_token", access);
-    localStorage.setItem("user", JSON.stringify(user));
+      alert("✅ Login Successful!");
+      navigate("/dashboard");
 
-    // 🔥 Notify navbar instantly
-    window.dispatchEvent(new Event("storage"));
+    } catch (err) {
+      setError(err.response?.data?.message || "Invalid credentials");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    alert("✅ Login Successful!");
+  // 🔥 Google login handler
+  const handleGoogleLogin = async (credentialResponse) => {
+    try {
+      setIsLoading(true);
 
-    navigate("/dashboard");
+      const res = await axios.post(
+        "http://127.0.0.1:8000/authx/google-login/",
+        {
+          token: credentialResponse.credential
+        }
+      );
 
-  } catch (err) {
+      const { access, user } = res.data.data;
 
-    setError(
-      err.response?.data?.message ||
-      "Invalid credentials"
-    );
+      localStorage.setItem("access_token", access);
+      localStorage.setItem("user", JSON.stringify(user));
 
-  } finally {
+      window.dispatchEvent(new Event("storage"));
 
-    setIsLoading(false);
+      alert("✅ Google Login Successful!");
+      navigate("/dashboard");
 
-  }
-};
+    } catch (err) {
+      setError("Google login failed");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center bg-gray-50 px-4">
@@ -77,13 +92,26 @@ export default function Login() {
           <p className="text-red-500 text-center mb-4">{error}</p>
         )}
 
+        {/* 🔥 GOOGLE LOGIN BUTTON */}
+        <div className="mb-6 flex justify-center">
+          <GoogleLogin
+            onSuccess={handleGoogleLogin}
+            onError={() => setError("Google login failed")}
+          />
+        </div>
+
+        <div className="text-center text-gray-400 mb-4">
+          OR
+        </div>
+
+        {/* NORMAL LOGIN */}
         <form onSubmit={handleSubmit} className="space-y-6">
 
-          {/* Email / Phone */}
           <div>
             <label className="block text-sm font-medium mb-2">
               Email or Phone Number
             </label>
+
             <input
               type="text"
               name="username"
@@ -95,7 +123,6 @@ export default function Login() {
             />
           </div>
 
-          {/* Password */}
           <div>
             <label className="block text-sm font-medium mb-2">
               Password
@@ -122,7 +149,6 @@ export default function Login() {
             </div>
           </div>
 
-          {/* Button */}
           <button
             type="submit"
             disabled={isLoading}
@@ -131,6 +157,7 @@ export default function Login() {
             <LogIn size={20} />
             {isLoading ? "Logging in..." : "Login"}
           </button>
+
         </form>
 
         <p className="text-center mt-6 text-gray-600">
@@ -139,6 +166,7 @@ export default function Login() {
             Register
           </Link>
         </p>
+
       </div>
     </div>
   );

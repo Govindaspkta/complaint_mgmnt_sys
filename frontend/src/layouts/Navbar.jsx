@@ -158,36 +158,50 @@ export default function Navbar() {
                   {user.username?.charAt(0).toUpperCase() || "U"}
                 </div>
 
-                {/* Dropdown */}
-                {open && (
+   {/* Dropdown */}
+{open && (
 
-                  <div className="absolute right-0 mt-3 w-48 bg-white text-black rounded-xl shadow-lg py-2">
+  <div className="absolute right-0 mt-3 w-56 bg-white text-black rounded-xl shadow-lg py-2">
 
-                    <div className="px-4 py-2 border-b text-sm font-semibold">
-                      {user.username}
-                    </div>
+    {/* 🔥 Clickable User Info */}
+    <Link
+      to="/profile-completion"
+      className="block px-4 py-3 border-b hover:bg-gray-100 transition"
+    >
 
-                    <button
-                      onClick={() =>
-                        alert("Theme toggle coming soon")
-                      }
-                      className="w-full px-4 py-2 flex items-center gap-2 hover:bg-gray-100 text-sm"
-                    >
-                      <Moon size={16} />
-                      Toggle Theme
-                    </button>
+      <p className="text-sm font-semibold">
+        {user.username}
+      </p>
 
-                    <button
-                      onClick={handleLogout}
-                      className="w-full px-4 py-2 flex items-center gap-2 hover:bg-gray-100 text-sm text-red-500"
-                    >
-                      <LogOut size={16} />
-                      Logout
-                    </button>
+      <p className="text-xs text-gray-500 mt-1">
+        Complete your profile
+      </p>
 
-                  </div>
+    </Link>
 
-                )}
+    {/* Theme */}
+    <button
+      onClick={() =>
+        alert("Theme toggle coming soon")
+      }
+      className="w-full px-4 py-2 flex items-center gap-2 hover:bg-gray-100 text-sm"
+    >
+      <Moon size={16} />
+      Toggle Theme
+    </button>
+
+    {/* Logout */}
+    <button
+      onClick={handleLogout}
+      className="w-full px-4 py-2 flex items-center gap-2 hover:bg-gray-100 text-sm text-red-500"
+    >
+      <LogOut size={16} />
+      Logout
+    </button>
+
+  </div>
+
+)}
 
               </div>
 
