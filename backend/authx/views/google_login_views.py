@@ -50,6 +50,7 @@ class GoogleLoginAPIView(PublicApiView):
                 "username":name,
                 }
         )
+       
         refresh = RefreshToken.for_user(user)
 
         response_data = { 
