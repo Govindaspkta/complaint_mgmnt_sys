@@ -25,18 +25,19 @@ class ProfileCompletionSerializer(serializers.Serializer):
         if AetherixProfile.objects.filter(user=user).exists():
             raise serializers.ValidationError(
                 "Profile Already Exists."
+                
             )
         return data
         
 
-    # def create(self, validated_data):
-    #     user = self.context["request"].user
-    #     profile = AetherixProfile.objects.create(
-    #         user=user,
-    #         **validated_data
-    #     )
-    #     profile.save()
-    #     return profile
+    def create(self, validated_data):
+        user = self.context["request"].user
+        profile = AetherixProfile.objects.create(
+            user=user,
+            **validated_data
+        )
+        profile.save()
+        return profile
 
     def update(self, instance, validated_data):
         for field,value in validated_data.items():
