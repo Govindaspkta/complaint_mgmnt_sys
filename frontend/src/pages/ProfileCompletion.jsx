@@ -73,9 +73,8 @@ export default function ProfileCompletion() {
     });
 
     try {
-
-      const res = await axios.patch(
-        'http://127.0.0.1:8000/api/auth/profile/complete/',
+  const res = await axios.patch(
+  `http://127.0.0.1:8000/authx/profile-completion/`,
         data,
         {
           headers: {
