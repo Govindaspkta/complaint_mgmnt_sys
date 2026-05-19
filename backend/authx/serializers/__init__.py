@@ -1,3 +1,4 @@
 from .signup_serializer import SignUpSerailizer
 from .login_serializer import LoginSerializer
 from .google_login_serializer import GoogleLoginSerializer
+from .profile_completion_serializer import ProfileCompletionSerializer
