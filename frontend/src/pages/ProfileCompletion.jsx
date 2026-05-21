@@ -1,8 +1,8 @@
-import { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
-import axios from 'axios';
-import { UploadCloud } from 'lucide-react';
+import { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
+import { updateProfile } from "../api/ProfileApi";
+import { UploadCloud } from "lucide-react";
 
 export default function ProfileCompletion() {
 
@@ -11,9 +11,9 @@ export default function ProfileCompletion() {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    citizenship_number: '',
-    address: '',
-    dob: '',
+    citizenship_number: "",
+    address: "",
+    dob: "",
     profile_picture: null,
     citizenship_front: null,
     citizenship_back: null,
@@ -23,82 +23,86 @@ export default function ProfileCompletion() {
 
   const [loading, setLoading] = useState(false);
 
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
-  // 🔥 Handle Input Changes
+  // ======================
+  // HANDLE INPUT CHANGE
+  // ======================
   const handleChange = (e) => {
 
-    if (e.target.files) {
+    const { name, value, files } = e.target;
 
-      const file = e.target.files[0];
+    if (files && files.length > 0) {
 
-      setFormData({
-        ...formData,
-        [e.target.name]: file
-      });
+      const file = files[0];
 
-      // Preview image
-      setPreview({
-        ...preview,
-        [e.target.name]: URL.createObjectURL(file)
-      });
+      setFormData((prev) => ({
+        ...prev,
+        [name]: file,
+      }));
+
+      setPreview((prev) => ({
+        ...prev,
+        [name]: URL.createObjectURL(file),
+      }));
 
     } else {
 
-      setFormData({
-        ...formData,
-        [e.target.name]: e.target.value
-      });
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
 
     }
   };
 
-  // 🔥 Submit Profile
+  // ======================
+  // SUBMIT PROFILE
+  // ======================
   const handleSubmit = async (e) => {
 
     e.preventDefault();
 
     setLoading(true);
 
-    setError('');
-
-    const data = new FormData();
-
-    Object.keys(formData).forEach((key) => {
-
-      if (formData[key]) {
-        data.append(key, formData[key]);
-      }
-
-    });
+    setError("");
 
     try {
-  const res = await axios.patch(
-  `http://127.0.0.1:8000/authx/profile-completion/`,
-        data,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('access_token')}`,
-            'Content-Type': 'multipart/form-data'
-          }
-        }
-      );
 
-      // update auth context
+      const data = new FormData();
+
+      Object.entries(formData).forEach(([key, value]) => {
+
+        if (value) {
+          data.append(key, value);
+        }
+
+      });
+
+      // ✅ FIXED
+      const res = await updateProfile(data);
+
+      // SAFE LOGIN UPDATE
       login(
-        { ...user, ...res.data.user },
-        localStorage.getItem('access_token')
+        {
+          ...user,
+          profile: res.data?.data,
+        },
+        localStorage.getItem("access_token")
       );
 
       alert("✅ Profile Completed Successfully!");
 
-      navigate('/submit-complaint');
+      navigate("/dashboard");
 
-    } catch (error) {
+    } catch (err) {
+
+      console.log(err);
 
       setError(
-        error.response?.data?.message ||
-        "Failed to update profile"
+        err.response?.data?.message ||
+        err.response?.data?.detail ||
+        "Profile update failed"
       );
 
     } finally {
@@ -108,16 +112,13 @@ export default function ProfileCompletion() {
     }
   };
 
-  const inputClass =
-    "w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500";
-
   return (
 
     <div className="min-h-screen bg-gray-50 py-10 px-4 flex justify-center">
 
       <div className="max-w-3xl w-full bg-white p-10 rounded-3xl shadow-2xl">
 
-        {/* Header */}
+        {/* HEADER */}
         <div className="text-center mb-8">
 
           <h2 className="text-3xl font-bold">
@@ -134,24 +135,24 @@ export default function ProfileCompletion() {
 
         </div>
 
-        {/* Error */}
+        {/* ERROR */}
         {error && (
           <p className="text-red-500 text-center mb-6">
             {error}
           </p>
         )}
 
-        {/* Form */}
+        {/* FORM */}
         <form
           onSubmit={handleSubmit}
           className="space-y-8"
         >
 
-          {/* 👤 Profile Picture */}
+          {/* PROFILE PICTURE */}
           <div>
 
             <label className="font-semibold block mb-3">
-              Profile Picture (Optional)
+              Profile Picture *
             </label>
 
             <div className="flex items-center gap-4">
@@ -176,6 +177,7 @@ export default function ProfileCompletion() {
                   hidden
                   accept="image/*"
                   onChange={handleChange}
+                  required
                 />
 
               </label>
@@ -184,14 +186,14 @@ export default function ProfileCompletion() {
 
           </div>
 
-          {/* 🪪 Citizenship Section */}
+          {/* CITIZENSHIP SECTION */}
           <div className="space-y-5">
 
             <h3 className="font-semibold text-xl">
               Citizenship Verification
             </h3>
 
-            {/* Citizenship Number */}
+            {/* CITIZENSHIP NUMBER */}
             <div>
 
               <label className="block mb-2 font-medium">
@@ -205,12 +207,12 @@ export default function ProfileCompletion() {
                 onChange={handleChange}
                 required
                 placeholder="Enter citizenship number"
-                className={inputClass}
+                className="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
 
             </div>
 
-            {/* Address */}
+            {/* ADDRESS */}
             <div>
 
               <label className="block mb-2 font-medium">
@@ -223,7 +225,7 @@ export default function ProfileCompletion() {
                 onChange={handleChange}
                 required
                 placeholder="Enter your permanent address"
-                className={`${inputClass} h-24`}
+                className="w-full px-4 py-3 border rounded-xl h-24 focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
 
             </div>
@@ -232,7 +234,7 @@ export default function ProfileCompletion() {
             <div>
 
               <label className="block mb-2 font-medium">
-                Date of Birth (Optional)
+                Date of Birth *
               </label>
 
               <input
@@ -240,15 +242,16 @@ export default function ProfileCompletion() {
                 name="dob"
                 value={formData.dob}
                 onChange={handleChange}
-                className={inputClass}
+                required
+                className="w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
 
             </div>
 
-            {/* Citizenship Images */}
+            {/* CITIZENSHIP IMAGES */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-              {/* Front */}
+              {/* FRONT */}
               <div>
 
                 <label className="block mb-2 font-medium">
@@ -274,7 +277,7 @@ export default function ProfileCompletion() {
 
               </div>
 
-              {/* Back */}
+              {/* BACK */}
               <div>
 
                 <label className="block mb-2 font-medium">
@@ -304,7 +307,7 @@ export default function ProfileCompletion() {
 
           </div>
 
-          {/* Submit */}
+          {/* SUBMIT */}
           <button
             type="submit"
             disabled={loading}
