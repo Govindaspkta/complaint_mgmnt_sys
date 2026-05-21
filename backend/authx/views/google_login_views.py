@@ -55,6 +55,7 @@ class GoogleLoginAPIView(PublicApiView):
 
         response_data = { 
             "access":str(refresh.access_token),
+            "refresh": str(refresh),
             "user":{
                 "id":user.id,
                 "email":user.email,

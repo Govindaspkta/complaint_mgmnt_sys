@@ -19,29 +19,30 @@ class ProfileCompletionSerializer(serializers.Serializer):
     dob = serializers.DateField(
         required =True
     )
+    profile_picture = serializers.ImageField(required=True)
 
     def validate(self, data):
-        user = self.context["request"].user
-        if AetherixProfile.objects.filter(user=user).exists():
-            raise serializers.ValidationError(
-                "Profile Already Exists."
-                
-            )
         return data
+        # user = self.context["request"].user
+        # if AetherixProfile.objects.filter(user=user).exists():
+        #     raise serializers.ValidationError(
+        #         "Profile Already Exists."
+                
+        #     )
+        # return data
         
 
     def create(self, validated_data):
         user = self.context["request"].user
-        profile = AetherixProfile.objects.create(
+        return AetherixProfile.objects.create(
             user=user,
             **validated_data
         )
-        profile.save()
-        return profile
-
-    def update(self, instance, validated_data):
-        for field,value in validated_data.items():
-            setattr(instance, field, value)
-        instance.save()
         
-        return instance
+
+    # def update(self, instance, validated_data):
+    #     for field,value in validated_data.items():
+    #         setattr(instance, field, value)
+    #     instance.save()
+        
+    #     return instance
