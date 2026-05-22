@@ -19,7 +19,7 @@ class AetherixProfile(BaseModel):
     profile_picture = models.ImageField(
         upload_to="profile_pictures/",
         null=False,
-        blank=False
+        blank=False,
     )
 
     citizenship_front = models.ImageField(

@@ -20,7 +20,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'authx',
     'rest_framework',
-    'corsheaders'
+    'corsheaders',
+    'complaint',
 ]
 
 MIDDLEWARE = [
