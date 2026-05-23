@@ -1,1 +1,1 @@
-from .complaint_categroy import ComplaintCategory
+from .complaint_categroy import ComplaintCategory 
