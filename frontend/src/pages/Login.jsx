@@ -62,7 +62,7 @@ export default function Login() {
 
       alert("✅ Login Successful!");
 
-      navigate("/dashboard");
+      navigate("/my-complaints");
 
     } catch (err) {
 
