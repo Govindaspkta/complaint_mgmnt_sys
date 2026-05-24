@@ -10,7 +10,9 @@ class AetherixUsers(AbstractUser):
     )
     mobile_number = models.CharField(
         max_length=10,
-        unique=True
+        unique=True,
+        blank=True,
+        null=True
     )
    
     address = models.CharField(max_length=128, null=True)

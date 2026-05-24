@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from models.complaint_categroy import ComplaintCategory
+from complaint.models import ComplaintCategory
 
 class CategorySerializer(serializers.Serializer):
     name = serializers.CharField(
