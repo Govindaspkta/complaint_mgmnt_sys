@@ -62,12 +62,16 @@ export default function Login() {
 
       alert("✅ Login Successful!");
 
-      navigate("/my-complaints");
+      // 🔥 ADMIN CHECK ADDED HERE
+      if (user?.is_staff === true) {
+        navigate("/admin-dashboard");
+      } else {
+        navigate("/my-complaints");
+      }
 
     } catch (err) {
 
       console.log("NORMAL LOGIN ERROR:", err);
-
       console.log("ERROR RESPONSE:", err.response?.data);
 
       setError(
@@ -77,9 +81,7 @@ export default function Login() {
       );
 
     } finally {
-
       setIsLoading(false);
-
     }
   };
 
@@ -120,12 +122,16 @@ export default function Login() {
 
       alert("✅ Google Login Successful!");
 
-      navigate("/dashboard");
+      // 🔥 ADMIN CHECK ADDED HERE TOO
+      if (user?.is_staff === true) {
+        navigate("/admin-dashboard");
+      } else {
+        navigate("/dashboard");
+      }
 
     } catch (err) {
 
       console.log("GOOGLE LOGIN ERROR:", err);
-
       console.log("GOOGLE ERROR RESPONSE:", err.response?.data);
 
       setError(
@@ -136,9 +142,7 @@ export default function Login() {
       );
 
     } finally {
-
       setIsLoading(false);
-
     }
   };
 
@@ -174,11 +178,8 @@ export default function Login() {
           <GoogleLogin
             onSuccess={handleGoogleLogin}
             onError={() => {
-
               console.log("GOOGLE BUTTON FAILED");
-
               setError("Google login failed");
-
             }}
           />
 
@@ -190,10 +191,7 @@ export default function Login() {
         </div>
 
         {/* NORMAL LOGIN FORM */}
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-6"
-        >
+        <form onSubmit={handleSubmit} className="space-y-6">
 
           {/* USERNAME */}
           <div>
@@ -238,11 +236,7 @@ export default function Login() {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-4 top-4 text-gray-500"
               >
-                {showPassword ? (
-                  <EyeOff size={22} />
-                ) : (
-                  <Eye size={22} />
-                )}
+                {showPassword ? <EyeOff size={22} /> : <Eye size={22} />}
               </button>
 
             </div>
@@ -255,11 +249,8 @@ export default function Login() {
             disabled={isLoading}
             className="btn-primary w-full py-4 flex items-center justify-center gap-2"
           >
-
             <LogIn size={20} />
-
             {isLoading ? "Logging in..." : "Login"}
-
           </button>
 
         </form>
@@ -269,10 +260,7 @@ export default function Login() {
 
           Don't have an account?{" "}
 
-          <Link
-            to="/register"
-            className="text-primary-600 font-semibold"
-          >
+          <Link to="/register" className="text-primary-600 font-semibold">
             Register
           </Link>
 
