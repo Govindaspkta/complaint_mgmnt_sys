@@ -37,7 +37,8 @@ class LoginAPIView(PublicApiView):
                 "id":user.id,
                 "username":user.username,
                 "email":user.email,
-                "reference_id":user.reference_id
+                "reference_id":user.reference_id,
+                "is_staff":user.is_staff
             }
         }
         response = self.success(
