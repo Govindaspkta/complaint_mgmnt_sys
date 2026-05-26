@@ -61,10 +61,16 @@ export default function Login() {
       window.dispatchEvent(new Event("storage"));
 
       alert("✅ Login Successful!");
+      console.log(user);
+      console.log(user?.is_staff);
+
+
+
+
 
       // 🔥 ADMIN CHECK ADDED HERE
       if (user?.is_staff === true) {
-        navigate("/admin-dashboard");
+        navigate("/admin/dashboard");
       } else {
         navigate("/my-complaints");
       }
@@ -124,7 +130,7 @@ export default function Login() {
 
       // 🔥 ADMIN CHECK ADDED HERE TOO
       if (user?.is_staff === true) {
-        navigate("/admin-dashboard");
+        navigate("/admin/dashboard");
       } else {
         navigate("/dashboard");
       }
