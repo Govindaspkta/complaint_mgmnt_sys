@@ -70,7 +70,7 @@ export default function Login() {
 
       // 🔥 ADMIN CHECK ADDED HERE
       if (user?.is_staff === true) {
-        navigate("/admin/dashboard");
+        navigate("/admin");
       } else {
         navigate("/my-complaints");
       }
