@@ -19,11 +19,11 @@ class CategorySerializer(serializers.Serializer):
 
 
 
-def create(sel, validated_data):
-    return ComplaintCategory.objects.create(**validated_data)
+    def create(self, validated_data):
+        return ComplaintCategory.objects.create(**validated_data)
 
-def update(self,instance, validated_data):
-    for field, value in validated_data.items():
-        setattr(instance, field, value)
-    instance.save()
-    return instance
+    def update(self,instance, validated_data):
+        for field, value in validated_data.items():
+            setattr(instance, field, value)
+        instance.save()
+        return instance
