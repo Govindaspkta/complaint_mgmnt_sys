@@ -3,7 +3,7 @@ from config.models import BaseModel
 from authx.models import AetherixUsers
 from complaint.models import ComplaintCategory
 
-class ComplaintCategory(BaseModel):
+class AetherixComplaints(BaseModel):
 
     STATUS_CHOICES = (
         ("pending", "Pending"),
@@ -18,9 +18,9 @@ class ComplaintCategory(BaseModel):
         ("high", "High"),
         ("urgent", "Urgent")
     )
-    user = models.ForeignKKey(
+    user = models.ForeignKey(
         'authx.AetherixUsers',
-        on_delete = models.Protect,
+        on_delete = models.PROTECT,
         related_name = "complaints"
 
     )
@@ -37,16 +37,16 @@ class ComplaintCategory(BaseModel):
         max_length=100,
     )
     province = models.CharField(
-        max_lenght=150
+        max_length=150
     )
     district = models.CharField(
-        max_lenght=150
+        max_length=150
     )
     municipalilty = models.CharField(
-        max_lenght=150
+        max_length=150
     )
     ward = models.CharField(
-        max_lenght=150
+        max_length=150
     )
 
     description = models.TextField()
