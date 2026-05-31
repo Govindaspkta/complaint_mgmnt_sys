@@ -1,7 +1,5 @@
 from django.db import models
 from config.models import BaseModel
-from authx.models import AetherixUsers
-from complaint.models import ComplaintCategory
 
 class AetherixComplaints(BaseModel):
 
@@ -33,23 +31,21 @@ class AetherixComplaints(BaseModel):
     title = models.CharField(
         max_length=100,
     )
-    display_name = models.CharField(
-        max_length=100,
-    )
+
     province = models.CharField(
         max_length=150
     )
     district = models.CharField(
         max_length=150
     )
-    municipalilty = models.CharField(
+    municipality = models.CharField(
         max_length=150
     )
     ward = models.CharField(
         max_length=150
     )
 
-    description = models.TextField()
+    description = models.TextField(max_length=500)
     is_verified = models.BooleanField(default=False)
     image = models.ImageField(
         upload_to="complaints/",
@@ -58,7 +54,8 @@ class AetherixComplaints(BaseModel):
     )
     status = models.CharField(
         max_length=20,
-        choices=STATUS_CHOICES
+        choices=STATUS_CHOICES,
+        default="pending"
     )
     priority = models.CharField(
         max_length=20,
