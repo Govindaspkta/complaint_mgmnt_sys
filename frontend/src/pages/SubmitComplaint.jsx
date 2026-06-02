@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import LocationSelector from "../components/LocationSelector";
 import { Upload, Send } from "lucide-react";
+import { createComplaint } from "./../api/complaintApi";
+import { getCategories } from "./../api/categoryApi";
 
 export default function SubmitComplaint() {
   const [formData, setFormData] = useState({
@@ -11,8 +13,28 @@ export default function SubmitComplaint() {
     image: null,
   });
 
+  const [categories, setCategories] = useState([]);
   const [location, setLocation] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // ✅ FETCH CATEGORIES (FIXED)
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await getCategories();
+
+        // 🔥 FIX: correct API path
+        const results = res.data?.data?.results || [];
+
+        setCategories(results);
+      } catch (err) {
+        console.error("Failed to load categories", err);
+        setCategories([]);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const handleLocationChange = (loc) => {
     setLocation(loc);
@@ -34,195 +56,138 @@ export default function SubmitComplaint() {
     }
   };
 
+  // ✅ SUBMIT (SAFE VERSION)
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!location) {
+    // 🔥 location validation
+    if (!location?.province || !location?.district) {
       alert("Please select complete location.");
+      return;
+    }
+
+    // 🔥 category validation
+    if (!formData.category) {
+      alert("Please select a category.");
       return;
     }
 
     setIsSubmitting(true);
 
-    const complaintData = {
-      title: formData.title,
-      category: formData.category,
-      priority: formData.priority,
-      description: formData.description,
+    try {
+      const data = new FormData();
 
-      province: location.province,
-      district: location.district,
-      municipality: location.municipality,
-      ward: location.ward,
+      data.append("title", formData.title);
+      data.append("category", formData.category);
+      data.append("priority", formData.priority);
+      data.append("description", formData.description);
 
-      image: formData.image,
-    };
+      data.append("province", location.province);
+      data.append("district", location.district);
+      data.append("municipality", location.municipality);
+      data.append("ward", location.ward);
 
-    console.log("Complaint Submitted:", complaintData);
+      if (formData.image) {
+        data.append("image", formData.image);
+      }
 
-    alert("Complaint submitted successfully! (Demo Mode)");
+      const res = await createComplaint(data);
 
-    setFormData({
-      title: "",
-      category: "",
-      priority: "medium",
-      description: "",
-      image: null,
-    });
+      console.log("✅ Complaint Created Successfully:", res.data);
+      alert("Complaint submitted successfully!");
 
-    setLocation(null);
-    setIsSubmitting(false);
+      // reset form
+      setFormData({
+        title: "",
+        category: "",
+        priority: "medium",
+        description: "",
+        image: null,
+      });
+
+      setLocation(null);
+    } catch (err) {
+      console.error("❌ Submit Error:", err.response?.data || err.message);
+      alert("Failed to submit complaint.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-10">
       <div className="bg-white rounded-3xl shadow-xl p-8">
-        <h1 className="text-4xl font-bold text-center mb-2 text-dark">
+        <h1 className="text-4xl font-bold text-center mb-6">
           Lodge Your Complaint
         </h1>
 
-        <p className="text-center text-gray-600 mb-10">
-          Report Public Issues Transparently
-        </p>
+        <form onSubmit={handleSubmit} className="space-y-6">
 
-        <form onSubmit={handleSubmit} className="space-y-8">
+          {/* TITLE */}
+          <input
+            type="text"
+            name="title"
+            value={formData.title}
+            onChange={handleInputChange}
+            placeholder="Complaint Title"
+            className="w-full p-4 border rounded-2xl"
+            required
+          />
 
-          {/* Complaint Title */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Complaint Title
-            </label>
+          {/* CATEGORY (FIXED) */}
+          <select
+            name="category"
+            value={formData.category}
+            onChange={handleInputChange}
+            className="w-full p-4 border rounded-2xl"
+            required
+          >
+            <option value="">Select Category</option>
 
-            <input
-              type="text"
-              name="title"
-              value={formData.title}
-              onChange={handleInputChange}
-              required
-              placeholder="e.g. Road damage near bus park"
-              className="w-full p-4 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500"
-            />
-          </div>
+            {categories.map((cat, index) => (
+              <option key={index} value={cat.name}>
+                {cat.display_name}
+              </option>
+            ))}
+          </select>
 
-          {/* Category */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Complaint Category
-            </label>
+          {/* PRIORITY */}
+          <select
+            name="priority"
+            value={formData.priority}
+            onChange={handleInputChange}
+            className="w-full p-4 border rounded-2xl"
+          >
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="urgent">Urgent</option>
+          </select>
 
-            <select
-              name="category"
-              value={formData.category}
-              onChange={handleInputChange}
-              required
-              className="w-full p-4 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500"
-            >
-              <option value="">Select Category</option>
+          {/* LOCATION */}
+          <LocationSelector onLocationChange={handleLocationChange} />
 
-              {/* Replace with API data later */}
-              <option value="1">Road Damage</option>
-              <option value="2">Water Supply</option>
-              <option value="3">Electricity</option>
-              <option value="4">Garbage Management</option>
-              <option value="5">Street Lighting</option>
-              <option value="6">Public Safety</option>
-              <option value="7">Others</option>
+          {/* DESCRIPTION */}
+          <textarea
+            name="description"
+            value={formData.description}
+            onChange={handleInputChange}
+            rows={5}
+            className="w-full p-4 border rounded-2xl"
+            placeholder="Describe your issue..."
+            required
+          />
 
-            </select>
-          </div>
+          {/* IMAGE */}
+          <input type="file" accept="image/*" onChange={handleImageChange} />
 
-          {/* Priority */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Priority Level
-            </label>
-
-            <select
-              name="priority"
-              value={formData.priority}
-              onChange={handleInputChange}
-              className="w-full p-4 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500"
-            >
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
-              <option value="urgent">Urgent</option>
-            </select>
-          </div>
-
-          {/* Location */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
-              Location Details
-            </label>
-
-            <div className="bg-gray-50 p-6 rounded-2xl border border-gray-200">
-              <LocationSelector
-                onLocationChange={handleLocationChange}
-              />
-            </div>
-          </div>
-
-          {/* Description */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Detailed Description
-            </label>
-
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleInputChange}
-              required
-              rows={6}
-              placeholder="Describe the issue clearly..."
-              className="w-full p-4 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500"
-            />
-          </div>
-
-          {/* Image Upload */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Evidence Image (Optional)
-            </label>
-
-            <div className="border-2 border-dashed border-gray-300 rounded-2xl p-8 text-center hover:border-primary-400 transition">
-              <Upload className="mx-auto text-gray-400 mb-3" />
-
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="hidden"
-                id="image"
-              />
-
-              <label
-                htmlFor="image"
-                className="cursor-pointer text-primary-600 font-medium"
-              >
-                Click to upload image
-              </label>
-
-              {formData.image && (
-                <p className="text-sm text-green-600 mt-3">
-                  ✅ {formData.image.name}
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Submit */}
+          {/* SUBMIT */}
           <button
             type="submit"
             disabled={isSubmitting}
-            className="btn-primary w-full flex items-center justify-center gap-3 py-4 text-lg"
+            className="w-full bg-blue-600 text-white p-4 rounded-2xl"
           >
-            <Send size={22} />
-
-            {isSubmitting
-              ? "Submitting Complaint..."
-              : "Submit Complaint"}
+            {isSubmitting ? "Submitting..." : "Submit Complaint"}
           </button>
         </form>
       </div>
