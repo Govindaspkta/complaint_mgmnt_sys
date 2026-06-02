@@ -4,18 +4,19 @@ from complaint.models import AetherixComplaints, ComplaintCategory
 from authx.models import AetherixUsers
 
 class ComplaintSerializer(serializers.Serializer):
+
     user = serializers.SlugRelatedField(
         queryset = AetherixUsers.objects.all(),
         slug_field ="reference_id",
-        required =True,
-        
-    )
+        required=True
+        )
     category = serializers.SlugRelatedField(
-        queryset = ComplaintCategory.objects.all(
+        queryset = ComplaintCategory.objects.all(),
             slug_field="reference_id",
             required=True
         )
-    )
+
+    
     title = serializers.CharField(
         required=True,
         error_messages={
@@ -64,7 +65,7 @@ class ComplaintSerializer(serializers.Serializer):
         if value.size > max_size:
             raise serializers.ValidationError("Image size cannot exceed 1 mb.")
         
-        ext = os.path.splittext(value.name)[1].lower()
+        ext = os.path.splitext(value.name)[1].lower()
         valid_extensions = ['.jpg', ',jpeg', '.png']
         if ext not in valid_extensions:
             raise serializers.ValidationError("File Type not supported.")

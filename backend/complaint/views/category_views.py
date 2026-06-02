@@ -1,9 +1,17 @@
-from config.views import SuperAdminBaseApiView
+from rest_framework.permissions import IsAuthenticated
+from config.permission import IsSuperUser
+from config.views import SuperAdminBaseApiView,BaseApiView
 from complaint.models import ComplaintCategory
 from config.utils import paginated_response
 from complaint.serializers import CategorySerializer
 
-class CategoryListCreateApiViews(SuperAdminBaseApiView):
+class CategoryListCreateApiViews(BaseApiView):
+
+    def get_permission(self):
+        if self.request.method == "POST":
+            return [IsSuperUser()]
+        return [IsAuthenticated()]
+
     def get(self, request):
         try:
             category = ComplaintCategory.objects.filter(is_active=True)
@@ -23,12 +31,12 @@ class CategoryListCreateApiViews(SuperAdminBaseApiView):
                 serializer.save()
                 return self.success("Category creaeted successfully.")
             
-            return self.error("validation error.")
+            return self.error(serializer.errors)
         
         except Exception as exe:
             return self.internal_server_error(str(exe))
 
-class CategooryDetailApiView(SuperAdminBaseApiView):
+class CategooryDetailApiView(BaseApiView):
 
     def get(self, request, reference_id):
         category = ComplaintCategory.objects.filter(
