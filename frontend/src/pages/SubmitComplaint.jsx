@@ -96,7 +96,7 @@ export default function SubmitComplaint() {
       console.log("✅ Complaint Created Successfully:", res.data);
       alert("Complaint submitted successfully!");
 
-      // reset form
+      // reset form 
       setFormData({
         title: "",
         category: "",
