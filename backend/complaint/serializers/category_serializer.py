@@ -2,6 +2,9 @@ from rest_framework import serializers
 from complaint.models import ComplaintCategory
 
 class CategorySerializer(serializers.Serializer):
+    reference_id = serializers.CharField(
+        read_only=True
+    )
     name = serializers.CharField(
         required=True,
         error_messages={

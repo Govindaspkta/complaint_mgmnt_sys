@@ -6,14 +6,14 @@ from authx.models import AetherixUsers
 class ComplaintSerializer(serializers.Serializer):
 
     user = serializers.SlugRelatedField(
-        queryset = AetherixUsers.objects.all(),
+        read_only=True,
+        # queryset = AetherixUsers.objects.all(),
         slug_field ="reference_id",
-        required=True
         )
     category = serializers.SlugRelatedField(
         queryset = ComplaintCategory.objects.all(),
             slug_field="reference_id",
-            required=True
+            
         )
 
     
@@ -26,13 +26,13 @@ class ComplaintSerializer(serializers.Serializer):
     province = serializers.CharField(
     required=True,
         error_messages={
-            "required":"province Name is required."
+            "required":"Province Name is required."
         }
     )
     district = serializers.CharField(
         required=True,
         error_messages={
-            "required":"Province Name is required."
+            "required":"District  is required."
         }
     )
     municipality = serializers.CharField(
@@ -57,7 +57,7 @@ class ComplaintSerializer(serializers.Serializer):
         required=True
     )
     status = serializers.CharField(
-        required=True
+        required=False
     )
     
     def validate_image(self, value):
@@ -73,6 +73,7 @@ class ComplaintSerializer(serializers.Serializer):
         return value
 
     def create(self, validated_data):
+        validated_data["user"] =self.context["request"].user
         return AetherixComplaints.objects.create(**validated_data)
 
     def update(self,instance, validated_data):

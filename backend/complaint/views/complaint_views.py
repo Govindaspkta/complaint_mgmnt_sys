@@ -18,7 +18,8 @@ class ComplaintListCreateApiViews(BaseApiView):
         
     def post(self, request):
         try:
-            serializer = ComplaintSerializer(data=request.data)
+            serializer = ComplaintSerializer(data=request.data,
+                                             context={'request':request})
             if serializer.is_valid():
                 serializer.save()
                 return self.success("Complaint creaeted successfully.")
