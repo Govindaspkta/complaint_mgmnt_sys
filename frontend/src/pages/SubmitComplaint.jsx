@@ -16,25 +16,24 @@ export default function SubmitComplaint() {
   const [categories, setCategories] = useState([]);
   const [location, setLocation] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  //  FETCH CATEGORIES
+useEffect(() => {
+  const fetchCategories = async () => {
+    try {
+      const res = await getCategories();
+      const results = res.data?.data?.results || res.data?.results || res.data || [];
 
-  // ✅ FETCH CATEGORIES (FIXED)
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const res = await getCategories();
+      console.log("Fetched Categories:", results); // ← Check this in console
 
-        // 🔥 FIX: correct API path
-        const results = res.data?.data?.results || [];
+      setCategories(results);
+    } catch (err) {
+      console.error("Failed to load categories", err);
+      setCategories([]);
+    }
+  };
 
-        setCategories(results);
-      } catch (err) {
-        console.error("Failed to load categories", err);
-        setCategories([]);
-      }
-    };
-
-    fetchCategories();
-  }, []);
+  fetchCategories();
+}, []);
 
   const handleLocationChange = (loc) => {
     setLocation(loc);
@@ -58,61 +57,83 @@ export default function SubmitComplaint() {
 
   // ✅ SUBMIT (SAFE VERSION)
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    // 🔥 location validation
-    if (!location?.province || !location?.district) {
-      alert("Please select complete location.");
-      return;
+  // Location Validation
+  if (
+    !location?.province_id ||
+    !location?.district_id ||
+    !location?.municipality_id ||
+    !location?.ward
+  ) {
+    alert("Please select complete location.");
+    return;
+  }
+
+  // Category Validation
+  if (!formData.category) {
+    alert("Please select a category.");
+    return;
+  }
+
+  setIsSubmitting(true);
+
+  try {
+    const data = new FormData();
+
+    // Complaint Fields
+    data.append("title", formData.title);
+    data.append("category", formData.category);
+    data.append("priority", formData.priority);
+    data.append("description", formData.description);
+
+    // Location Fields
+    data.append("province", location.province_name);
+    data.append("district", location.district_name);
+    data.append("municipality", location.municipality_name);
+    data.append("ward", location.ward);
+
+    // Optional IDs (recommended if backend uses foreign keys)
+    data.append("province_id", location.province_id);
+    data.append("district_id", location.district_id);
+    data.append("municipality_id", location.municipality_id);
+
+    // Image
+    if (formData.image) {
+      data.append("image", formData.image);
     }
 
-    // 🔥 category validation
-    if (!formData.category) {
-      alert("Please select a category.");
-      return;
-    }
+    const res = await createComplaint(data);
 
-    setIsSubmitting(true);
+    console.log("Complaint Created:", res.data);
 
-    try {
-      const data = new FormData();
+    alert("Complaint submitted successfully!");
 
-      data.append("title", formData.title);
-      data.append("category", formData.category);
-      data.append("priority", formData.priority);
-      data.append("description", formData.description);
+    // Reset Form
+    setFormData({
+      title: "",
+      category: "",
+      priority: "medium",
+      description: "",
+      image: null,
+    });
 
-      data.append("province", location.province);
-      data.append("district", location.district);
-      data.append("municipality", location.municipality);
-      data.append("ward", location.ward);
+    setLocation(null);
+  } catch (err) {
+    console.error(
+      "Submit Error:",
+      err.response?.data || err.message
+    );
 
-      if (formData.image) {
-        data.append("image", formData.image);
-      }
-
-      const res = await createComplaint(data);
-
-      console.log("✅ Complaint Created Successfully:", res.data);
-      alert("Complaint submitted successfully!");
-
-      // reset form 
-      setFormData({
-        title: "",
-        category: "",
-        priority: "medium",
-        description: "",
-        image: null,
-      });
-
-      setLocation(null);
-    } catch (err) {
-      console.error("❌ Submit Error:", err.response?.data || err.message);
-      alert("Failed to submit complaint.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+    alert(
+      err.response?.data?.detail ||
+      err.response?.data?.message ||
+      "Failed to submit complaint."
+    );
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-10">
@@ -134,22 +155,31 @@ export default function SubmitComplaint() {
             required
           />
 
-          {/* CATEGORY (FIXED) */}
-          <select
-            name="category"
-            value={formData.category}
-            onChange={handleInputChange}
-            className="w-full p-4 border rounded-2xl"
-            required
-          >
-            <option value="">Select Category</option>
+{/* CATEGORY SELECT */}
+<select
+  name="category"
+  value={formData.category}
+  onChange={(e) => {
+    console.log("Category selected:", e.target.value);
+    setFormData({
+      ...formData,
+      category: e.target.value,
+    });
+  }}
+  className="w-full p-4 border rounded-2xl"
+  required
+>
+  <option value="">Select Category</option>
 
-            {categories.map((cat, index) => (
-              <option key={index} value={cat.name}>
-                {cat.display_name}
-              </option>
-            ))}
-          </select>
+  {categories.map((cat, index) => (
+    <option
+      key={cat.reference_id || `cat-${index}`}   // ← Fixed: Safe fallback
+      value={cat.reference_id}
+    >
+      {cat.display_name || cat.name || "Unnamed Category"}
+    </option>
+  ))}
+</select>
 
           {/* PRIORITY */}
           <select
