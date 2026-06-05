@@ -20,8 +20,6 @@ class CategorySerializer(serializers.Serializer):
 
     description = serializers.CharField()
 
-
-
     def create(self, validated_data):
         return ComplaintCategory.objects.create(**validated_data)
 

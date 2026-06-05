@@ -10,7 +10,6 @@ class SignUpSerailizer(serializers.Serializer):
             "required":"FIrst name cannot be blank."
         }
     )
-
     first_name = serializers.CharField(
         required=True,
         allow_blank=False,
@@ -71,7 +70,6 @@ class SignUpSerailizer(serializers.Serializer):
                 raise serializers.ValidationError("Password and confirm password didnot match")
             data.pop("confirm_password")
         return data
-        
         
     def create(self, validated_data):
         password = validated_data.pop("password")

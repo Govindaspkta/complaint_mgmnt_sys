@@ -8,7 +8,6 @@ class ProfileCompletionSerializer(serializers.Serializer):
     )
     address = serializers.CharField(
         required =True,
-        
     )
     citizenship_front = serializers.ImageField(
         required=True
@@ -38,7 +37,6 @@ class ProfileCompletionSerializer(serializers.Serializer):
             user=user,
             **validated_data
         )
-        
 
     # def update(self, instance, validated_data):
     #     for field,value in validated_data.items():

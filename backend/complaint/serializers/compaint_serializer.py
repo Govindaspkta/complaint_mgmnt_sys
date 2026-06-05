@@ -1,7 +1,6 @@
 from rest_framework import serializers
 import os
 from complaint.models import AetherixComplaints, ComplaintCategory
-from authx.models import AetherixUsers
 
 class ComplaintSerializer(serializers.Serializer):
 
@@ -16,7 +15,6 @@ class ComplaintSerializer(serializers.Serializer):
             
         )
 
-    
     title = serializers.CharField(
         required=True,
         error_messages={
