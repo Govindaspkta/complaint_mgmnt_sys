@@ -1,18 +1,15 @@
+// complaintApi.js
 import api from "./axios";
-
-// ================= COMPLAINTS API =================
 
 export const createComplaint = async (complaintData) => {
   const response = await api.post("/complaints/", complaintData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
+    headers: { "Content-Type": "multipart/form-data" },
   });
   return response;
 };
 
-export const getAllComplaints = async () => {
-  const response = await api.get("/complaints/");
+export const getMyComplaints = async () => {
+  const response = await api.get("/complaints/");   // ← Changed to your main endpoint
   return response;
 };
 
@@ -31,17 +28,10 @@ export const deleteComplaint = async (reference_id) => {
   return response;
 };
 
-// Optional: Get My Complaints (for normal users)
-export const getMyComplaints = async () => {
-  const response = await api.get("/complaints/my-complaints/");   // adjust if your endpoint is different
-  return response;
-};
-
 export default {
   createComplaint,
-  getAllComplaints,
+  getMyComplaints,
   getComplaintDetail,
   updateComplaint,
   deleteComplaint,
-  getMyComplaints,
 };

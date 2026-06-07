@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getAllComplaints, updateComplaint } from "../../api/complaintApi";
+// import { getAllComplaints, updateComplaint } from "../../api/complaintApi";
 
 export default function ComplaintVerification() {
   const [complaints, setComplaints] = useState([]);

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Search,
   Eye,
@@ -6,286 +6,187 @@ import {
   AlertTriangle,
   CheckCircle,
   Clock,
-  XCircle
+  XCircle,
+  Loader2
 } from 'lucide-react';
+import { getMyComplaints } from '../api/complaintApi'; // Adjust path if needed
 
 export default function MyComplaints() {
-
-  // 🔥 Dummy Data
-  const complaintsData = [
-    {
-      id: 1,
-      title: "Street Light Not Working",
-      category: "Electricity",
-      department: "Electricity Department",
-      status: "Pending",
-      priority: "High",
-      created_at: "2026-05-17"
-    },
-    {
-      id: 2,
-      title: "Road Damaged Near Bus Park",
-      category: "Roads",
-      department: "Road Department",
-      status: "Resolved",
-      priority: "Medium",
-      created_at: "2026-05-15"
-    },
-    {
-      id: 3,
-      title: "Water Leakage Problem",
-      category: "Water Supply",
-      department: "Water Department",
-      status: "In Progress",
-      priority: "High",
-      created_at: "2026-05-14"
-    },
-    {
-      id: 4,
-      title: "Garbage Not Collected",
-      category: "Waste Management",
-      department: "Municipality",
-      status: "Rejected",
-      priority: "Low",
-      created_at: "2026-05-12"
-    }
-  ];
-
+  const [complaints, setComplaints] = useState([]);
+  const [filteredComplaints, setFilteredComplaints] = useState([]);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // 🔥 Filter Complaints
-  const filteredComplaints = complaintsData.filter((complaint) => {
+  // Fetch My Complaints
+  useEffect(() => {
+    const fetchComplaints = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const res = await getMyComplaints();
+        
+        // Handle different possible response structures
+        const data = res.data?.data?.results || 
+                    res.data?.results || 
+                    res.data || [];
+        
+        setComplaints(data);
+        setFilteredComplaints(data);
+      } catch (err) {
+        console.error("Failed to fetch complaints", err);
+        setError("Failed to load your complaints. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    const matchesSearch =
-      complaint.title.toLowerCase().includes(search.toLowerCase());
+    fetchComplaints();
+  }, []);
 
-    const matchesStatus =
-      statusFilter === 'All' ||
-      complaint.status === statusFilter;
+  // Real-time Search + Filter
+  useEffect(() => {
+    const filtered = complaints.filter((c) => {
+      const matchesSearch = 
+        (c.title?.toLowerCase().includes(search.toLowerCase()) ||
+         c.description?.toLowerCase().includes(search.toLowerCase()));
 
-    return matchesSearch && matchesStatus;
+      const matchesStatus = 
+        statusFilter === 'All' || 
+        (c.status && c.status.toLowerCase() === statusFilter.toLowerCase());
 
-  });
+      return matchesSearch && matchesStatus;
+    });
 
-  // 🔥 Status Badge
+    setFilteredComplaints(filtered);
+  }, [search, statusFilter, complaints]);
+
   const getStatusBadge = (status) => {
-
-    switch (status) {
-
-      case 'Pending':
-        return 'bg-yellow-100 text-yellow-700';
-
-      case 'Resolved':
-        return 'bg-green-100 text-green-700';
-
-      case 'Rejected':
-        return 'bg-red-100 text-red-700';
-
-      case 'In Progress':
-        return 'bg-orange-100 text-orange-700';
-
-      default:
-        return 'bg-gray-100 text-gray-700';
-    }
+    const s = status?.toLowerCase() || '';
+    if (s.includes('pending')) return 'bg-yellow-100 text-yellow-700 border border-yellow-200';
+    if (s.includes('approved')) return 'bg-blue-100 text-blue-700 border border-blue-200';
+    if (s.includes('progress') || s.includes('processing')) return 'bg-orange-100 text-orange-700 border border-orange-200';
+    if (s.includes('resolved')) return 'bg-green-100 text-green-700 border border-green-200';
+    if (s.includes('rejected')) return 'bg-red-100 text-red-700 border border-red-200';
+    return 'bg-gray-100 text-gray-700 border border-gray-200';
   };
 
-  // 🔥 Status Icon
   const getStatusIcon = (status) => {
-
-    switch (status) {
-
-      case 'Pending':
-        return <Clock size={18} />;
-
-      case 'Resolved':
-        return <CheckCircle size={18} />;
-
-      case 'Rejected':
-        return <XCircle size={18} />;
-
-      case 'In Progress':
-        return <AlertTriangle size={18} />;
-
-      default:
-        return null;
-    }
+    const s = status?.toLowerCase() || '';
+    if (s.includes('pending')) return <Clock size={18} />;
+    if (s.includes('resolved')) return <CheckCircle size={18} />;
+    if (s.includes('rejected')) return <XCircle size={18} />;
+    if (s.includes('progress') || s.includes('processing')) return <AlertTriangle size={18} />;
+    return <Clock size={18} />;
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="animate-spin text-blue-600" size={50} />
+          <p className="text-gray-600 font-medium">Loading your complaints...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-
-    <div className="min-h-screen bg-gray-50 px-4 py-10">
-
-      <div className="max-w-6xl mx-auto">
-
-        {/* Header */}
-        <div className="mb-8">
-
-          <h1 className="text-4xl font-bold text-gray-800">
-            My Complaints
-          </h1>
-
-          <p className="text-gray-500 mt-2">
-            Track and monitor all your submitted complaints.
+    <div className="min-h-screen bg-gray-50 px-4 py-8 md:py-12">
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-10">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900">My Complaints</h1>
+          <p className="text-gray-600 mt-3 text-lg">
+            Track all your complaints — Admin approval → Government forwarding (NEA, etc.)
           </p>
-
         </div>
 
-        {/* Search + Filter */}
-        <div className="bg-white rounded-3xl shadow-md p-5 mb-8 flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
-
-          {/* Search */}
-          <div className="relative w-full md:w-[400px]">
-
-            <Search
-              className="absolute left-4 top-3.5 text-gray-400"
-              size={18}
-            />
-
+        {/* Search & Filter Bar */}
+        <div className="bg-white rounded-3xl shadow p-5 md:p-6 mb-8 flex flex-col md:flex-row gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-5 top-4 text-gray-400" size={20} />
             <input
               type="text"
               placeholder="Search complaints..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full pl-14 pr-5 py-4 bg-gray-50 border border-gray-200 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-
           </div>
 
-          {/* Filter */}
           <div className="flex items-center gap-3">
-
-            <Filter size={18} className="text-gray-500" />
-
+            <Filter size={20} className="text-gray-500" />
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-4 py-3 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="px-6 py-4 border border-gray-200 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50"
             >
-
               <option value="All">All Status</option>
               <option value="Pending">Pending</option>
+              <option value="Approved">Approved</option>
               <option value="In Progress">In Progress</option>
               <option value="Resolved">Resolved</option>
               <option value="Rejected">Rejected</option>
-
             </select>
-
           </div>
-
         </div>
 
-        {/* Complaint Cards */}
-        <div className="grid gap-6">
-
-          {filteredComplaints.length > 0 ? (
-
-            filteredComplaints.map((complaint) => (
-
+        {/* Complaints List */}
+        {filteredComplaints.length > 0 ? (
+          <div className="space-y-6">
+            {filteredComplaints.map((complaint) => (
               <div
-                key={complaint.id}
-                className="bg-white rounded-3xl shadow-md p-6 hover:shadow-xl transition"
+                key={complaint.reference_id || complaint.id}
+                className="bg-white rounded-3xl shadow hover:shadow-2xl transition-all duration-300 p-6 md:p-8 border border-transparent hover:border-gray-100"
               >
-
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-
-                  {/* Left */}
-                  <div className="space-y-3">
-
-                    <div className="flex items-center gap-3">
-
-                      <h2 className="text-2xl font-bold text-gray-800">
-                        {complaint.title}
-                      </h2>
-
-                      <span
-                        className={`px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1 ${getStatusBadge(complaint.status)}`}
-                      >
-
+                <div className="flex flex-col lg:flex-row lg:items-start gap-6">
+                  <div className="flex-1">
+                    <div className="flex flex-wrap items-center gap-3 mb-4">
+                      <h2 className="text-2xl font-semibold text-gray-900">{complaint.title}</h2>
+                      <span className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-2xl text-sm font-semibold ${getStatusBadge(complaint.status)}`}>
                         {getStatusIcon(complaint.status)}
-
                         {complaint.status}
-
                       </span>
-
                     </div>
 
-                    <div className="grid md:grid-cols-2 gap-3 text-gray-600">
-
-                      <p>
-                        <span className="font-semibold">
-                          Category:
-                        </span>{' '}
-                        {complaint.category}
-                      </p>
-
-                      <p>
-                        <span className="font-semibold">
-                          Department:
-                        </span>{' '}
-                        {complaint.department}
-                      </p>
-
-                      <p>
-                        <span className="font-semibold">
-                          Priority:
-                        </span>{' '}
-                        {complaint.priority}
-                      </p>
-
-                      <p>
-                        <span className="font-semibold">
-                          Submitted:
-                        </span>{' '}
-                        {complaint.created_at}
-                      </p>
-
+                    <div className="grid md:grid-cols-2 gap-4 text-gray-600">
+                      <p><span className="font-medium text-gray-700">Category:</span> {complaint.category || complaint.complaint_type}</p>
+                      <p><span className="font-medium text-gray-700">Department:</span> {complaint.department || 'Will be assigned'}</p>
+                      <p><span className="font-medium text-gray-700">Priority:</span> <span className="capitalize">{complaint.priority}</span></p>
+                      <p><span className="font-medium text-gray-700">Submitted:</span> {complaint.created_at ? new Date(complaint.created_at).toLocaleDateString('en-NP') : 'N/A'}</p>
                     </div>
 
+                    {complaint.description && (
+                      <p className="mt-4 text-gray-600 line-clamp-3">{complaint.description}</p>
+                    )}
                   </div>
 
-                  {/* Right */}
                   <div>
-
                     <button
-                      className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-primary-500 text-white hover:opacity-90 transition"
+                      onClick={() => {
+                        const id = complaint.reference_id || complaint.id;
+                        alert(`Opening details for Complaint ID: ${id}`);
+                        // TODO: Navigate to detail page → window.location = `/complaints/${id}` or use react-router
+                      }}
+                      className="flex items-center gap-3 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-3xl font-medium transition-all active:scale-95"
                     >
-
-                      <Eye size={18} />
-
+                      <Eye size={20} />
                       View Details
-
                     </button>
-
                   </div>
-
                 </div>
-
               </div>
-
-            ))
-
-          ) : (
-
-            <div className="bg-white rounded-3xl shadow-md p-10 text-center">
-
-              <h3 className="text-2xl font-bold text-gray-700">
-                No Complaints Found
-              </h3>
-
-              <p className="text-gray-500 mt-2">
-                Try changing search or filter options.
-              </p>
-
-            </div>
-
-          )}
-
-        </div>
-
+            ))}
+          </div>
+        ) : (
+          <div className="bg-white rounded-3xl shadow p-20 text-center">
+            <p className="text-6xl mb-4">📭</p>
+            <h3 className="text-2xl font-semibold text-gray-800">No complaints found</h3>
+            <p className="text-gray-500 mt-2">You haven't submitted any complaints yet.</p>
+          </div>
+        )}
       </div>
-
     </div>
-
   );
 }

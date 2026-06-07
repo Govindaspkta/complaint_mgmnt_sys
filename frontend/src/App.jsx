@@ -12,6 +12,7 @@ import AdminDashboard from './pages/Admin/AdminDashboard';
 import DashboardOverview from './pages/Admin/DashboardOverview';
 import ProfileVerification from './pages/Admin/ProfileVerification';
 import CategoryManagement from './pages/Admin/CategoryManagement';
+import ComplaintVerification from './pages/Admin/ComplaintVerification';
 
 function App() {
   return (
@@ -25,7 +26,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/profile-completion" element={<ProfileCompletion />} />
-          <Route path="/my-complaints" element={<MyComplaints />} />
+          <Route path="/complaints" element={<MyComplaints />} />
 
           {/* PUBLIC COMPLAINTS */}
           <Route path="/complaints" element={<div className="p-20 text-center text-3xl">Public Complaints Page - Coming Soon</div>} />
@@ -33,7 +34,9 @@ function App() {
           {/* ADMIN SECTION - PROPER NESTED ROUTING */}
           <Route path="/admin" element={<AdminDashboard />}>
             <Route index element={<DashboardOverview />} />
-            <Route path="profile-verification" element={<ProfileVerification />} />
+            <Route path="profile-verification" element={<ProfileVerification />} />\
+            <Route path="complaint-verification" element={<ComplaintVerification />} />
+
             <Route path="categories" element={<CategoryManagement />} />
             <Route path="complaints" element={<div className="p-10 text-xl">Complaints Management Coming Soon</div>} />
           </Route>
