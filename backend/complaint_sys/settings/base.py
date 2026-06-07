@@ -1,5 +1,6 @@
 
 from pathlib import Path
+from datetime import timedelta
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -90,6 +91,14 @@ TEMPLATES = [
 
 
 STATIC_URL = 'static/'
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': True,  # Gives a new refresh token when a user refreshes
+    'BLACKLIST_AFTER_ROTATION': True,  # Blacklists old refresh tokens for security
+}
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

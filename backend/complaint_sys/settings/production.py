@@ -34,7 +34,6 @@
 # # CORS_ALLOWED_ORIGINS = []
 # CORS_ALLOW_ALL_ORIGINS = True
 
-# # If you are sending cookies (JWT) from frontend
 # CORS_ALLOW_CREDENTIALS = False
 
 # CORS_ALLOW_HEADERS = [

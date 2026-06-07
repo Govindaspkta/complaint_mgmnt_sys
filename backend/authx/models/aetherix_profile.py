@@ -34,7 +34,6 @@ class AetherixProfile(BaseModel):
         null=True,
         blank=True
     )
-   
 
     class Meta:
         db_table = "aetherix_profiles"

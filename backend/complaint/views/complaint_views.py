@@ -44,11 +44,11 @@ class ComplaintsDetailApiView(BaseApiView):
             status_code=200
         )
     
-    def put(self, request, refeerence_id):
+    def put(self, request, reference_id):
         complaints = AetherixComplaints.objects.filter(
             is_actie=True,
             is_delete=False,
-            refeerence_id=refeerence_id
+            refeerence_id=reference_id
         )
         serializer = ComplaintSerializer(complaints)
         if serializer.is_valid():
