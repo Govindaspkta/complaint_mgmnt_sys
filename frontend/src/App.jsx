@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 import Navbar from './layouts/Navbar';
 import Home from './pages/Home';
@@ -14,6 +14,8 @@ import ProfileVerification from './pages/Admin/ProfileVerification';
 import CategoryManagement from './pages/Admin/CategoryManagement';
 import ComplaintVerification from './pages/Admin/ComplaintVerification';
 
+import ProtectedRoute from './components/ProtectRoute';
+
 function App() {
   return (
     <Router>
@@ -21,25 +23,66 @@ function App() {
         <Navbar />
 
         <Routes>
+          {/* Public Routes */}
           <Route path="/" element={<Home />} />
-          <Route path="/submit-complaint" element={<SubmitComplaint />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/profile-completion" element={<ProfileCompletion />} />
-          <Route path="/complaints" element={<MyComplaints />} />
 
-          {/* PUBLIC COMPLAINTS */}
-          <Route path="/complaints" element={<div className="p-20 text-center text-3xl">Public Complaints Page - Coming Soon</div>} />
+          {/* Protected User Routes */}
+          <Route 
+            path="/submit-complaint" 
+            element={
+              <ProtectedRoute>
+                <SubmitComplaint />
+              </ProtectedRoute>
+            } 
+          />
 
-          {/* ADMIN SECTION - PROPER NESTED ROUTING */}
-          <Route path="/admin" element={<AdminDashboard />}>
+          <Route 
+            path="/complaints" 
+            element={
+              <ProtectedRoute>
+                <MyComplaints />
+              </ProtectedRoute>
+            } 
+          />
+
+          <Route 
+            path="/my-complaints" 
+            element={
+              <ProtectedRoute>
+                <MyComplaints />
+              </ProtectedRoute>
+            } 
+          />
+
+          <Route 
+            path="/profile-completion" 
+            element={
+              <ProtectedRoute>
+                <ProfileCompletion />
+              </ProtectedRoute>
+            } 
+          />
+
+          {/* ADMIN ROUTES */}
+          <Route 
+            path="/admin" 
+            element={
+              <ProtectedRoute adminOnly={true}>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          >
             <Route index element={<DashboardOverview />} />
-            <Route path="profile-verification" element={<ProfileVerification />} />\
+            <Route path="profile-verification" element={<ProfileVerification />} />
             <Route path="complaint-verification" element={<ComplaintVerification />} />
-
             <Route path="categories" element={<CategoryManagement />} />
             <Route path="complaints" element={<div className="p-10 text-xl">Complaints Management Coming Soon</div>} />
           </Route>
+
+          {/* Fallback Route */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
     </Router>

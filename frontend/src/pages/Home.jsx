@@ -1,7 +1,24 @@
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { PlusCircle, Users, ShieldCheck, Clock, AlertTriangle } from 'lucide-react';
 
 export default function Home() {
+  const navigate = useNavigate();
+
+  // Check if user is logged in
+  const isAuthenticated = () => {
+    return !!localStorage.getItem('access_token');
+  };
+
+  // Handle protected navigation
+  const handleProtectedClick = (path) => {
+    if (isAuthenticated()) {
+      navigate(path);
+    } else {
+      alert("कृपया पहिले लगिन गर्नुहोस्।\nPlease login first.");
+      navigate('/login');
+    }
+  };
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -18,21 +35,23 @@ export default function Home() {
           </p>
 
           <div className="flex flex-wrap justify-center gap-4">
-            <Link
-              to="/submit-complaint"
-              className="btn-primary flex items-center gap-3 text-lg px-10 py-4"
+            {/* Protected: Submit Complaint */}
+            <button
+              onClick={() => handleProtectedClick('/submit-complaint')}
+              className="btn-primary flex items-center gap-3 text-lg px-10 py-4 cursor-pointer hover:scale-105 transition"
             >
               <PlusCircle size={28} />
               अहिले उजुरी दर्ता गर्नुहोस्
-            </Link>
+            </button>
 
-            <Link
-              to="/complaints"
-              className="btn-outline border-white text-white hover:bg-white hover:text-dark flex items-center gap-3 text-lg px-8 py-4"
+            {/* Protected: View Complaints */}
+            <button
+              onClick={() => handleProtectedClick('/complaints')}
+              className="btn-outline border-white text-white hover:bg-white hover:text-dark flex items-center gap-3 text-lg px-8 py-4 cursor-pointer hover:scale-105 transition"
             >
               <Users size={28} />
               सार्वजनिक उजुरीहरू हेर्नुहोस्
-            </Link>
+            </button>
           </div>
         </div>
       </div>
@@ -92,12 +111,12 @@ export default function Home() {
       {/* CTA Section */}
       <div className="bg-dark text-white py-20 text-center">
         <h2 className="text-4xl font-bold mb-6">तपाईंको आवाज अब दब्ने छैन !</h2>
-        <Link
-          to="/submit-complaint"
-          className="inline-block bg-accent hover:bg-cyan-300 text-dark font-semibold text-xl px-12 py-5 rounded-2xl transition transform hover:scale-105"
+        <button
+          onClick={() => handleProtectedClick('/submit-complaint')}
+          className="inline-block bg-accent hover:bg-cyan-300 text-dark font-semibold text-xl px-12 py-5 rounded-2xl transition transform hover:scale-105 cursor-pointer"
         >
           अहिले उजुरी दर्ता गर्नुहोस् →
-        </Link>
+        </button>
       </div>
     </div>
   );
