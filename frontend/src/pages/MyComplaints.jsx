@@ -9,7 +9,9 @@ import {
   XCircle,
   Loader2,
   Calendar,
-  MapPin
+  MapPin,
+  ArrowRight,
+  FileText
 } from 'lucide-react';
 import { getMyComplaints } from '../api/complaintApi';
 
@@ -49,9 +51,13 @@ export default function MyComplaints() {
   // Real-time Search + Filter
   useEffect(() => {
     const filtered = complaints.filter((c) => {
+      const searchTerm = search.toLowerCase();
+      
       const matchesSearch = 
-        (c.title?.toLowerCase().includes(search.toLowerCase()) ||
-         c.description?.toLowerCase().includes(search.toLowerCase()));
+        (c.title?.toLowerCase().includes(searchTerm) ||
+         c.description?.toLowerCase().includes(searchTerm) ||
+         (c.reference_id?.toLowerCase().includes(searchTerm)) ||
+         (c.category?.name?.toLowerCase().includes(searchTerm)));
 
       const matchesStatus = 
         statusFilter === 'All' || 
@@ -82,12 +88,31 @@ export default function MyComplaints() {
     return <Clock size={18} />;
   };
 
+  const getPriorityColor = (priority) => {
+    if (priority === 'high' || priority === 'urgent') {
+      return 'bg-red-100 text-red-700';
+    }
+    if (priority === 'low') {
+      return 'bg-green-100 text-green-700';
+    }
+    return 'bg-amber-100 text-amber-700';
+  };
+
+  const getComplaintStats = () => {
+    const total = complaints.length;
+    const pending = complaints.filter(c => c.status?.toLowerCase().includes('pending')).length;
+    const resolved = complaints.filter(c => c.status?.toLowerCase().includes('resolved')).length;
+    return { total, pending, resolved };
+  };
+
+  const stats = getComplaintStats();
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center px-4" style={{ backgroundColor: 'var(--bg-secondary)' }}>
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="animate-spin text-blue-600" size={56} />
-          <p className="text-gray-600 font-medium text-lg">Loading your complaints...</p>
+          <Loader2 className="animate-spin" size={56} style={{ color: 'var(--primary-600)' }} />
+          <p className="text-lg font-medium" style={{ color: 'var(--text-secondary)' }}>Loading your complaints...</p>
         </div>
       </div>
     );
@@ -95,13 +120,14 @@ export default function MyComplaints() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+      <div className="min-h-screen flex items-center justify-center px-4" style={{ backgroundColor: 'var(--bg-secondary)' }}>
         <div className="text-center max-w-md">
-          <AlertTriangle size={64} className="mx-auto text-red-500" />
-          <h3 className="text-2xl font-semibold mt-6">{error}</h3>
+          <AlertTriangle size={64} className="mx-auto mb-6" style={{ color: 'var(--error-600)' }} />
+          <h3 className="text-2xl font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>{error}</h3>
           <button 
             onClick={() => window.location.reload()} 
-            className="mt-6 px-8 py-3 bg-blue-600 text-white rounded-2xl hover:bg-blue-700 transition"
+            className="px-8 py-3 rounded-xl font-medium transition-all active:scale-[0.97] shadow-sm"
+            style={{ backgroundColor: 'var(--primary-600)', color: 'white' }}
           >
             Try Again
           </button>
@@ -111,107 +137,207 @@ export default function MyComplaints() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 px-4 py-8 md:py-12">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="mb-10 text-center md:text-left">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900">My Complaints</h1>
-          <p className="text-gray-600 mt-3 text-lg max-w-md mx-auto md:mx-0">
-            Track your complaints from submission to government forwarding
-          </p>
+    <div className="min-h-screen px-4 sm:px-6 lg:px-10 py-8 sm:py-12 lg:py-16" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+      <div className="max-w-[1440px] mx-auto">        
+        {/* Header Section */}
+        <div className="mb-8 sm:mb-10 lg:mb-12">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+            <div>
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-3" style={{ color: 'var(--text-h)' }}>
+                My Complaints
+              </h1>
+              <p className="text-base sm:text-lg max-w-2xl" style={{ color: 'var(--text-secondary)' }}>
+                Track your complaints from submission to resolution. Monitor status updates in real-time.
+              </p>
+            </div>
+          </div>
+
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 mt-8">
+            <div className="p-5 sm:p-6 rounded-2xl border" style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border)' }}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium mb-1" style={{ color: 'var(--text-tertiary)' }}>Total Complaints</p>
+                  <p className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>{stats.total}</p>
+                </div>
+                <FileText size={32} style={{ color: 'var(--primary-600)' }} className="opacity-80" />
+              </div>
+            </div>
+
+            <div className="p-5 sm:p-6 rounded-2xl border" style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border)' }}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium mb-1" style={{ color: 'var(--text-tertiary)' }}>Pending</p>
+                  <p className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--warning-600)' }}>{stats.pending}</p>
+                </div>
+                <Clock size={32} style={{ color: 'var(--warning-600)' }} className="opacity-80" />
+              </div>
+            </div>
+
+            <div className="p-5 sm:p-6 rounded-2xl border" style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border)' }}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium mb-1" style={{ color: 'var(--text-tertiary)' }}>Resolved</p>
+                  <p className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--success-600)' }}>{stats.resolved}</p>
+                </div>
+                <CheckCircle size={32} style={{ color: 'var(--success-600)' }} className="opacity-80" />
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Search & Filter */}
-        <div className="bg-white rounded-3xl shadow-sm p-5 md:p-6 mb-10 flex flex-col md:flex-row gap-4 items-center">
-          <div className="relative flex-1 w-full">
-            <Search className="absolute left-5 top-4 text-gray-400" size={22} />
-            <input
-              type="text"
-              placeholder="Search by title or description..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-14 pr-6 py-4 bg-gray-50 border border-gray-200 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
-            />
+        <div className="mb-8 sm:mb-10 rounded-2xl sm:rounded-3xl border p-4 sm:p-6 lg:p-8" 
+             style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border)' }}>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
+            {/* Search Input */}
+            <div className="lg:col-span-2 relative">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2" size={20} style={{ color: 'var(--text-tertiary)' }} />
+              <input
+                type="text"
+                placeholder="Search by title, description, or reference ID..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 sm:py-4 bg-gray-50 border rounded-xl sm:rounded-2xl focus:outline-none focus:ring-2 transition-all text-base"
+                style={{ borderColor: 'var(--border)', '--tw-ring-color': 'var(--primary-600)' }}
+              />
+            </div>
+
+            {/* Status Filter */}
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Filter size={20} style={{ color: 'var(--text-tertiary)' }} className="hidden sm:block" />
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="w-full px-4 py-3 sm:py-4 bg-gray-50 border rounded-xl sm:rounded-2xl focus:outline-none focus:ring-2 transition-all text-base font-medium"
+                style={{ borderColor: 'var(--border)', '--tw-ring-color': 'var(--primary-600)' }}
+              >
+                <option value="All">All Status</option>
+                <option value="Pending">Pending</option>
+                <option value="Approved">Approved</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Resolved">Resolved</option>
+                <option value="Rejected">Rejected</option>
+              </select>
+            </div>
           </div>
 
-          <div className="flex items-center gap-3 w-full md:w-auto">
-            <Filter size={22} className="text-gray-500" />
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full md:w-64 px-6 py-4 bg-gray-50 border border-gray-200 rounded-3xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
-            >
-              <option value="All">All Status</option>
-              <option value="Pending">Pending</option>
-              <option value="Approved">Approved</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Resolved">Resolved</option>
-              <option value="Rejected">Rejected</option>
-            </select>
-          </div>
+          {filteredComplaints.length > 0 && (
+            <p className="text-sm mt-4" style={{ color: 'var(--text-tertiary)' }}>
+              Showing <span className="font-semibold" style={{ color: 'var(--text-secondary)' }}>{filteredComplaints.length}</span> complaint{filteredComplaints.length !== 1 ? 's' : ''}
+            </p>
+          )}
         </div>
 
-        {/* Complaints List - Clean One-by-One Cards */}
+        {/* Complaints List */}
         {filteredComplaints.length > 0 ? (
-          <div className="space-y-8">
+          <div className="space-y-4 sm:space-y-6 lg:space-y-8">
             {filteredComplaints.map((complaint) => (
               <div
-                key={complaint.reference_id || complaint.id}
-                className="bg-white rounded-3xl shadow hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-blue-100 group"
+                key={complaint.reference_id || complaint.id || Math.random()}
+                className="rounded-2xl sm:rounded-3xl border transition-all duration-300 overflow-hidden hover:shadow-lg group cursor-pointer"
+                style={{ 
+                  backgroundColor: 'var(--bg-primary)', 
+                  borderColor: 'var(--border)',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--primary-600)';
+                  e.currentTarget.style.boxShadow = '0 20px 40px rgba(2, 132, 199, 0.1)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--border)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
               >
-                <div className="p-8 md:p-10">
-                  <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
-                    {/* Left Content */}
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-5">
-                        <h2 className="text-2xl font-semibold text-gray-900 leading-tight">
+                <div className="p-5 sm:p-7 lg:p-10">
+                  <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8">
+                    
+                    {/* Main Content */}
+                    <div className="lg:col-span-3">
+                      {/* Title & Status */}
+                      <div className="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4 mb-6">
+                        <h2 className="text-xl sm:text-2xl lg:text-2xl font-semibold flex-1" style={{ color: 'var(--text-h)' }}>
                           {complaint.title}
                         </h2>
-                        <span className={`inline-flex items-center gap-2 px-5 py-2 rounded-2xl text-sm font-semibold ${getStatusBadge(complaint.status)}`}>
+                        <span className={`inline-flex items-center gap-2 px-4 sm:px-5 py-2 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-semibold whitespace-nowrap ${getStatusBadge(complaint.status)}`}>
                           {getStatusIcon(complaint.status)}
-                          {complaint.status}
+                          <span>{complaint.status || 'Pending'}</span>
                         </span>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-4 text-gray-600">
+                      {/* Metadata */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6 text-sm sm:text-base">
                         <div className="flex items-center gap-3">
-                          <MapPin size={18} className="text-gray-400" />
-                          <span><span className="font-medium">Category:</span> {complaint.category || complaint.complaint_type || 'General'}</span>
+                          <FileText size={18} style={{ color: 'var(--text-tertiary)' }} className="flex-shrink-0" />
+                          <div>
+                            <p className="text-xs font-medium" style={{ color: 'var(--text-tertiary)' }}>Reference ID</p>
+                            <p className="font-semibold" style={{ color: 'var(--text-primary)' }}>
+                              {complaint.reference_id || 'N/A'}
+                            </p>
+                          </div>
                         </div>
+
                         <div className="flex items-center gap-3">
-                          <Calendar size={18} className="text-gray-400" />
-                          <span><span className="font-medium">Submitted:</span> {complaint.created_at ? new Date(complaint.created_at).toLocaleDateString('en-NP', { year: 'numeric', month: 'short', day: 'numeric' }) : 'N/A'}</span>
+                          <MapPin size={18} style={{ color: 'var(--text-tertiary)' }} className="flex-shrink-0" />
+                          <div>
+                            <p className="text-xs font-medium" style={{ color: 'var(--text-tertiary)' }}>Category</p>
+                            <p className="font-semibold capitalize" style={{ color: 'var(--text-primary)' }}>
+                              {complaint.category?.name || complaint.category || 'General'}
+                            </p>
+                          </div>
                         </div>
+
                         <div className="flex items-center gap-3">
-                          <span className="font-medium">Priority:</span>
-                          <span className={`capitalize px-4 py-1 rounded-xl text-sm font-medium ${complaint.priority === 'high' || complaint.priority === 'urgent' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
-                            {complaint.priority || 'Medium'}
-                          </span>
+                          <Calendar size={18} style={{ color: 'var(--text-tertiary)' }} className="flex-shrink-0" />
+                          <div>
+                            <p className="text-xs font-medium" style={{ color: 'var(--text-tertiary)' }}>Submitted</p>
+                            <p className="font-semibold" style={{ color: 'var(--text-primary)' }}>
+                              {complaint.created_at 
+                                ? new Date(complaint.created_at).toLocaleDateString('en-NP', { year: 'numeric', month: 'short', day: 'numeric' }) 
+                                : 'N/A'}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <span className="font-medium">Department:</span> {complaint.department || 'Auto Routed'}
+
+                        <div className="flex items-center gap-3">
+                          <AlertTriangle size={18} style={{ color: 'var(--text-tertiary)' }} className="flex-shrink-0" />
+                          <div>
+                            <p className="text-xs font-medium" style={{ color: 'var(--text-tertiary)' }}>Priority</p>
+                            <p className={`capitalize px-3 py-1 rounded-lg text-xs font-semibold w-fit ${getPriorityColor(complaint.priority)}`}>
+                              {complaint.priority || 'Medium'}
+                            </p>
+                          </div>
                         </div>
                       </div>
 
+                      {/* Description */}
                       {complaint.description && (
-                        <div className="mt-6 text-gray-700 leading-relaxed border-l-4 border-gray-200 pl-5">
-                          {complaint.description}
+                        <div className="text-sm sm:text-base leading-relaxed p-4 rounded-xl" 
+                             style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', borderLeft: '4px solid var(--primary-600)' }}>
+                          {complaint.description.substring(0, 200)}
+                          {complaint.description.length > 200 ? '...' : ''}
                         </div>
                       )}
                     </div>
 
-                    {/* Right Action */}
-                    <div className="flex-shrink-0 flex flex-col items-center md:items-end gap-4 pt-2">
+                    {/* Action Button */}
+                    <div className="lg:col-span-1 flex flex-col items-stretch lg:items-end justify-center pt-4 lg:pt-0">
                       <button
                         onClick={() => {
                           const id = complaint.reference_id || complaint.id;
                           alert(`Opening details for Complaint ID: ${id}`);
                           // TODO: Use react-router navigate(`/complaints/${id}`)
                         }}
-                        className="flex items-center gap-3 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-3xl font-medium transition-all active:scale-[0.97] shadow-sm group-hover:scale-105"
+                        className="flex items-center justify-center lg:justify-end gap-2 px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-medium transition-all active:scale-95 text-sm sm:text-base"
+                        style={{ 
+                          backgroundColor: 'var(--primary-600)', 
+                          color: 'white'
+                        }}
                       >
-                        <Eye size={20} />
-                        View Full Details
+                        <Eye size={18} />
+                        <span className="hidden sm:inline">View Details</span>
+                        <span className="sm:hidden">View</span>
+                        <ArrowRight size={16} />
                       </button>
                     </div>
                   </div>
@@ -220,12 +346,20 @@ export default function MyComplaints() {
             ))}
           </div>
         ) : (
-          <div className="bg-white rounded-3xl shadow p-20 text-center">
-            <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center text-5xl mb-6">
+          <div className="rounded-2xl sm:rounded-3xl border p-8 sm:p-12 lg:p-16 text-center" 
+               style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border)' }}>
+            <div className="mx-auto w-20 h-20 sm:w-24 sm:h-24 rounded-full flex items-center justify-center text-4xl sm:text-5xl mb-6" 
+                 style={{ backgroundColor: 'var(--bg-secondary)' }}>
               📭
             </div>
-            <h3 className="text-3xl font-semibold text-gray-800">No complaints found</h3>
-            <p className="text-gray-500 mt-3 text-lg">You haven't submitted any complaints yet or try changing filters.</p>
+            <h3 className="text-2xl sm:text-3xl font-semibold mb-3" style={{ color: 'var(--text-h)' }}>
+              No complaints found
+            </h3>
+            <p className="text-base sm:text-lg" style={{ color: 'var(--text-secondary)' }}>
+              {search || statusFilter !== 'All' 
+                ? 'Try adjusting your search filters.' 
+                : "You haven't submitted any complaints yet. When you do, they'll appear here."}
+            </p>
           </div>
         )}
       </div>

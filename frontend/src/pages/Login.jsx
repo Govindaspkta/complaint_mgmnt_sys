@@ -55,7 +55,7 @@ export default function Login() {
 
       // Consistent navigation
       if (user?.is_staff === true) {
-        navigate("/admin/dashboard");
+        navigate("/admin");
       } else {
         navigate("/my-complaints");   // or "/dashboard" if you prefer
       }
