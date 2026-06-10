@@ -1,6 +1,7 @@
 from rest_framework import serializers
 import os
 from complaint.models import AetherixComplaints, ComplaintCategory
+from complaint.serializers import CategorySerializer
 
 class ComplaintSerializer(serializers.Serializer):
 
@@ -14,6 +15,9 @@ class ComplaintSerializer(serializers.Serializer):
             slug_field="reference_id",
             
         )
+    # category = CategorySerializer(
+    #     read_only=True
+    # )
 
     title = serializers.CharField(
         required=True,
@@ -79,3 +83,25 @@ class ComplaintSerializer(serializers.Serializer):
             setattr(instance, field, value)
         instance.save()
         return instance
+
+class ComplaintReadOnlySerializer(serializers.Serializer):
+
+    user = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field="reference_id"
+    )
+    
+    category = CategorySerializer(read_only=True)   # Full category object with name
+    
+    title = serializers.CharField(read_only=True)
+    province = serializers.CharField(read_only=True)
+    district = serializers.CharField(read_only=True)
+    municipality = serializers.CharField(read_only=True)
+    ward = serializers.CharField(read_only=True)
+    description = serializers.CharField(read_only=True)
+    image = serializers.ImageField(read_only=True)
+    priority = serializers.CharField(read_only=True)
+    status = serializers.CharField(read_only=True)
+    reference_id = serializers.CharField(read_only=True)
+    created_at = serializers.DateTimeField(read_only=True)
+    

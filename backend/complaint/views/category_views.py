@@ -26,7 +26,10 @@ class CategoryListCreateApiViews(BaseApiView):
         
     def post(self, request):
         try:
-            serializer = CategorySerializer(data=request.data)
+            serializer = CategorySerializer(
+                data=request.data,
+                context={'request':request}
+            )
             if serializer.is_valid():
                 serializer.save()
                 return self.success("Category creaeted successfully.")

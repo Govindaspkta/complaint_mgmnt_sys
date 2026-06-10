@@ -1,7 +1,7 @@
 from config.views import BaseApiView
 from complaint.models import AetherixComplaints
 from config.utils import paginated_response
-from complaint.serializers import ComplaintSerializer
+from complaint.serializers import ComplaintSerializer, ComplaintReadOnlySerializer
 class ComplaintListCreateApiViews(BaseApiView):
 
     def get(self, request):
@@ -10,7 +10,7 @@ class ComplaintListCreateApiViews(BaseApiView):
             return paginated_response(
                 request=request,
                 queryset=complaints,
-                serializer_class=ComplaintSerializer,
+                serializer_class=ComplaintReadOnlySerializer,
                 message="Success"
             )
         except Exception as e:
@@ -18,8 +18,9 @@ class ComplaintListCreateApiViews(BaseApiView):
         
     def post(self, request):
         try:
-            serializer = ComplaintSerializer(data=request.data,
-                                             context={'request':request})
+            serializer = ComplaintSerializer(
+                data=request.data,
+                context={'request':request})
             if serializer.is_valid():
                 serializer.save()
                 return self.success("Complaint creaeted successfully.")
@@ -46,10 +47,10 @@ class ComplaintsDetailApiView(BaseApiView):
     
     def put(self, request, reference_id):
         complaints = AetherixComplaints.objects.filter(
-            is_actie=True,
-            is_delete=False,
+            is_active=True,
+            is_deleted=False,
             refeerence_id=reference_id
-        )
+        ).first()
         serializer = ComplaintSerializer(complaints)
         if serializer.is_valid():
             serializer.save()
