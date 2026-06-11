@@ -21,59 +21,17 @@ function App() {
     <Router>
       <div className="min-h-screen bg-light">
         <Navbar />
-
         <Routes>
-          {/* Public Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
-          {/* Protected User Routes */}
-          <Route 
-            path="/submit-complaint" 
-            element={
-              <ProtectedRoute>
-                <SubmitComplaint />
-              </ProtectedRoute>
-            } 
-          />
+          <Route path="/submit-complaint" element={<ProtectedRoute><SubmitComplaint /></ProtectedRoute>} />
+          <Route path="/complaints" element={<ProtectedRoute><MyComplaints /></ProtectedRoute>} />
+          <Route path="/my-complaints" element={<ProtectedRoute><MyComplaints /></ProtectedRoute>} />
+          <Route path="/profile-completion" element={<ProtectedRoute><ProfileCompletion /></ProtectedRoute>} />
 
-          <Route 
-            path="/complaints" 
-            element={
-              <ProtectedRoute>
-                <MyComplaints />
-              </ProtectedRoute>
-            } 
-          />
-
-          <Route 
-            path="/my-complaints" 
-            element={
-              <ProtectedRoute>
-                <MyComplaints />
-              </ProtectedRoute>
-            } 
-          />
-
-          <Route 
-            path="/profile-completion" 
-            element={
-              <ProtectedRoute>
-                <ProfileCompletion />
-              </ProtectedRoute>
-            } 
-          />
-
-          {/* ADMIN ROUTES */}
-          <Route 
-            path="/admin" 
-            element={
-              <ProtectedRoute adminOnly={true}>
-                <AdminDashboard />
-              </ProtectedRoute>
-            }
-          >
+          <Route path="/admin" element={<ProtectedRoute adminOnly={true}><AdminDashboard /></ProtectedRoute>}>
             <Route index element={<DashboardOverview />} />
             <Route path="profile-verification" element={<ProfileVerification />} />
             <Route path="complaint-verification" element={<ComplaintVerification />} />
@@ -81,7 +39,6 @@ function App() {
             <Route path="complaints" element={<div className="p-10 text-xl">Complaints Management Coming Soon</div>} />
           </Route>
 
-          {/* Fallback Route */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>

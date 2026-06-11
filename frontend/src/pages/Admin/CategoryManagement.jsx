@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-
+import { useEffect, useState, useCallback } from "react";
 import {
   getCategories,
   createCategory,
@@ -8,265 +7,226 @@ import {
 } from "../../api/categoryApi";
 
 export default function CategoryManagement() {
-
   const [categories, setCategories] = useState([]);
-
   const [loading, setLoading] = useState(false);
-
+  const [submitting, setSubmitting] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const [formData, setFormData] = useState({
     name: "",
     display_name: "",
     description: "",
+    is_active: true,
   });
 
-  // ================= FETCH =================
-  const fetchCategories = async () => {
-
+  const fetchCategories = useCallback(async () => {
     try {
-
+      setLoading(true);
       const res = await getCategories();
+      console.log("📋 FULL RESPONSE:", res.data);
 
-      console.log("CATEGORY RESPONSE:", res.data);
-
-      // SAFE ARRAY CHECK
-      if (Array.isArray(res.data)) {
-
-        setCategories(res.data);
-
-      } else if (Array.isArray(res.data.data)) {
-
-        setCategories(res.data.data);
-
-      } else {
-
-        setCategories([]);
-      }
-
+      const data = res.data?.success && res.data?.data?.results 
+        ? res.data.data.results 
+        : [];
+      setCategories(data);
     } catch (err) {
-
-      console.log("FETCH ERROR:", err);
-
-      setCategories([]);
+      console.error("FETCH ERROR:", err);
+    } finally {
+      setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchCategories();
-  }, []);
+  }, [fetchCategories]);
 
-  // ================= INPUT =================
   const handleChange = (e) => {
-
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
   };
 
-  // ================= RESET =================
   const resetForm = () => {
-
     setEditingId(null);
-
-    setFormData({
-      name: "",
-      display_name: "",
-      description: "",
-    });
+    setFormData({ name: "", display_name: "", description: "", is_active: true });
   };
 
-  // ================= SUBMIT =================
   const handleSubmit = async (e) => {
-
     e.preventDefault();
+    if (!formData.name.trim() || !formData.display_name.trim()) {
+      alert("System Name and Display Name are required!");
+      return;
+    }
 
     try {
-
-      setLoading(true);
-
-      console.log("FORM:", formData);
+      setSubmitting(true);
+      console.log("🚀 SUBMITTING...", { isUpdate: !!editingId, editingId, formData });
 
       if (editingId) {
-
-        await updateCategory(editingId, formData);
-
+        console.log(`📤 PUT to: /complaints/categories/${editingId}`);
+        const res = await updateCategory(editingId, formData);
+        console.log("✅ UPDATE SUCCESS:", res.data);
+        alert("✅ Category Updated Successfully");
       } else {
-
-        await createCategory(formData);
+        const res = await createCategory(formData);
+        console.log("✅ CREATE SUCCESS:", res.data);
+        alert("✅ Category Created Successfully");
       }
 
       resetForm();
-
-      fetchCategories();
-
+      await fetchCategories();
     } catch (err) {
-
-      console.log("SUBMIT ERROR:", err);
-
-      alert("Failed");
-
+      console.error("❌ ERROR:", err);
+      console.error("Response:", err.response?.data);
+      alert(err.response?.data?.message || "Operation failed. Check console.");
     } finally {
-
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
-  // ================= EDIT =================
   const handleEdit = (cat) => {
-
+    console.log("✏️ Editing:", cat);
     setEditingId(cat.reference_id);
-
     setFormData({
       name: cat.name || "",
       display_name: cat.display_name || "",
       description: cat.description || "",
+      is_active: cat.is_active ?? true,
     });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // ================= DELETE =================
   const handleDelete = async (reference_id) => {
-
+    if (!window.confirm("Delete this category?")) return;
     try {
-
       await deleteCategory(reference_id);
-
-      fetchCategories();
-
+      alert("✅ Category Deleted");
+      await fetchCategories();
     } catch (err) {
-
-      console.log(err);
+      console.error(err);
+      alert("Cannot delete this category (may be in use)");
     }
   };
 
-  return (
-    <div className="p-6">
+  const filtered = categories.filter(c =>
+    c.display_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    c.name?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-      <h1 className="text-3xl font-bold mb-6">
-        Category Management
-      </h1>
+  return (
+    <div className="p-6 max-w-7xl mx-auto">
+      <h1 className="text-3xl font-bold mb-2">Category Management</h1>
+      <p className="text-gray-600 mb-8">Manage categories → Approved complaints route to govt systems (NEA etc.)</p>
 
       {/* FORM */}
-      <div className="bg-white p-6 rounded-2xl shadow mb-8">
+      <div className="bg-white p-8 rounded-3xl shadow-xl mb-10">
+        <h2 className="text-2xl font-semibold mb-6">
+          {editingId ? "✏️ Edit Category" : "➕ Create New Category"}
+        </h2>
 
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-4"
-        >
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block mb-1">System Name</label>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                className="w-full border p-4 rounded-2xl"
+                required
+              />
+            </div>
+            <div>
+              <label className="block mb-1">Display Name</label>
+              <input
+                type="text"
+                name="display_name"
+                value={formData.display_name}
+                onChange={handleChange}
+                className="w-full border p-4 rounded-2xl"
+                required
+              />
+            </div>
+          </div>
 
-          <input
-            type="text"
-            name="name"
-            placeholder="System Name"
-            value={formData.name}
-            onChange={handleChange}
-            className="w-full border p-3 rounded-xl"
-            required
-          />
+          <div>
+            <label className="block mb-1">Description</label>
+            <textarea
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              className="w-full border p-4 rounded-2xl h-32"
+            />
+          </div>
 
-          <input
-            type="text"
-            name="display_name"
-            placeholder="Display Name"
-            value={formData.display_name}
-            onChange={handleChange}
-            className="w-full border p-3 rounded-xl"
-            required
-          />
+          <div className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              name="is_active"
+              checked={formData.is_active}
+              onChange={handleChange}
+            />
+            <label>Active</label>
+          </div>
 
-          <textarea
-            name="description"
-            placeholder="Description"
-            value={formData.description}
-            onChange={handleChange}
-            className="w-full border p-3 rounded-xl h-32"
-          />
-
-          <div className="flex gap-3">
-
+          <div className="flex gap-4">
             <button
               type="submit"
-              disabled={loading}
-              className="bg-blue-600 text-white px-6 py-3 rounded-xl"
+              disabled={submitting}
+              className="bg-blue-600 text-white px-10 py-4 rounded-2xl font-medium disabled:opacity-70"
             >
-              {loading
-                ? "Loading..."
-                : editingId
-                ? "Update Category"
-                : "Create Category"}
+              {submitting ? "Processing..." : editingId ? "Update Category" : "Create Category"}
             </button>
 
             {editingId && (
               <button
                 type="button"
                 onClick={resetForm}
-                className="bg-gray-500 text-white px-6 py-3 rounded-xl"
+                className="bg-gray-500 text-white px-10 py-4 rounded-2xl"
               >
                 Cancel
               </button>
             )}
-
           </div>
-
         </form>
-
       </div>
 
-      {/* CATEGORY LIST */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      {/* LIST */}
+      <div className="flex justify-between mb-6">
+        <h2 className="text-2xl font-semibold">Existing Categories ({filtered.length})</h2>
+        <input
+          type="text"
+          placeholder="Search categories..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="border px-5 py-3 rounded-2xl w-80"
+        />
+      </div>
 
-        {categories.length === 0 ? (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filtered.map((cat) => (
+          <div key={cat.reference_id} className="bg-white p-6 rounded-3xl shadow">
+            <h3 className="font-bold text-xl">{cat.display_name}</h3>
+            <p className="text-gray-500">{cat.name}</p>
+            {cat.description && <p className="mt-3 text-sm text-gray-600">{cat.description}</p>}
 
-          <div>No Categories Found</div>
-
-        ) : (
-
-          categories.map((cat) => (
-
-            <div
-              key={cat.reference_id || cat.id}
-              className="bg-white p-5 rounded-2xl shadow"
-            >
-
-              <h2 className="text-xl font-bold">
-                {cat.display_name}
-              </h2>
-
-              <p className="text-gray-500">
-                {cat.name}
-              </p>
-
-              <p className="mt-3">
-                {cat.description}
-              </p>
-
-              <div className="flex gap-3 mt-5">
-
-                <button
-                  onClick={() => handleEdit(cat)}
-                  className="bg-yellow-500 text-white px-4 py-2 rounded-xl"
-                >
-                  Edit
-                </button>
-
-                <button
-                  onClick={() =>
-                    handleDelete(
-                      cat.reference_id || cat.id
-                    )
-                  }
-                  className="bg-red-500 text-white px-4 py-2 rounded-xl"
-                >
-                  Delete
-                </button>
-
-              </div>
-
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => handleEdit(cat)}
+                className="flex-1 bg-yellow-500 text-white py-3 rounded-2xl"
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => handleDelete(cat.reference_id)}
+                className="flex-1 bg-red-500 text-white py-3 rounded-2xl"
+              >
+                Delete
+              </button>
             </div>
-          ))
-        )}
-
+          </div>
+        ))}
       </div>
     </div>
   );
