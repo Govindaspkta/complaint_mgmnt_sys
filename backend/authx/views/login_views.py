@@ -11,7 +11,7 @@ class LoginAPIView(PublicApiView):
     # @extend_schema(
     #         request=LoginSerializer,
     #         responses ={200:StandardResponseSerializer},
-    #         description = "customer Login Endpoint returning JWT Tokens.")
+    #         description = "custom er Login Endpoint returning JWT Tokens.")
     
     
     def post(self, request):
