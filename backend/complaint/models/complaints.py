@@ -8,6 +8,7 @@ class AetherixComplaints(BaseModel):
         ("reviewing","Reviewing"),
         ("in_progress","In Progress"),
         ("resolved","Resolved"),
+        ("approved","Approved"),
         ("rejected","Rejected")
     )
     PRIORITY_CHOICES = (

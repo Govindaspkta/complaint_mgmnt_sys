@@ -15,10 +15,6 @@ class ComplaintSerializer(serializers.Serializer):
             slug_field="reference_id",
             
         )
-    # category = CategorySerializer(
-    #     read_only=True
-    # )
-
     title = serializers.CharField(
         required=True,
         error_messages={
@@ -55,9 +51,7 @@ class ComplaintSerializer(serializers.Serializer):
     priority = serializers.CharField(
         required=True
     )
-    priority = serializers.CharField(
-        required=True
-    )
+ 
     status = serializers.CharField(
         required=False
     )
