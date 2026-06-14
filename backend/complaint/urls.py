@@ -9,7 +9,7 @@ urlpatterns  = [
 
     #complaints
     path("", views.ComplaintListCreateApiViews.as_view(), name ="complaints-list-create"),
-    path("<reference_id>", views.ComplaintsDetailApiView.as_view(), name ="complaints-detail"),
-
+    path("<reference_id>/", views.ComplaintsDetailApiView.as_view(), name ="complaints-detail"),
+    path("admin/<reference_id>/", views.ComplaintsAdminUpdateApiView.as_view(), name ="category-by-admin"),
 
 ]

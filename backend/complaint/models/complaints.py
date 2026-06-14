@@ -53,7 +53,7 @@ class AetherixComplaints(BaseModel):
         blank=True,
         null=True
     )
-    rejection_reason = models.TextField(blank=False, null=False)
+    rejection_reason = models.TextField(blank=False, null=False, default="no rejection")
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,

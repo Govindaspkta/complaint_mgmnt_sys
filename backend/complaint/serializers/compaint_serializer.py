@@ -55,6 +55,7 @@ class ComplaintSerializer(serializers.Serializer):
     status = serializers.CharField(
         required=False
     )
+    rejection_reason = serializers.CharField(required=False, allow_blank=True )
     
     def validate_image(self, value):
         max_size = 1*1024*1024

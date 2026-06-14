@@ -74,7 +74,7 @@ class ComplaintsDetailApiView(BaseApiView):
             
         )
     
-class ComplaintsDetailApiView(SuperAdminBaseApiView):
+class ComplaintsAdminUpdateApiView(SuperAdminBaseApiView):
 
     def patch(self, request, reference_id):
         complaints = AetherixComplaints.objects.filter(
@@ -83,7 +83,7 @@ class ComplaintsDetailApiView(SuperAdminBaseApiView):
             reference_id=reference_id
         ).first()
         if complaints.status == "pending":
-            serializer = ComplaintSerializer(complaints, partial=True)
+            serializer = ComplaintSerializer(complaints,data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()
                 complaints.status = "approved"
