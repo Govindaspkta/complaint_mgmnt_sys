@@ -1,7 +1,7 @@
 // src/api/complaintApi.js
 import api from "./axios";
 
-// Existing...
+// ================= USER / PUBLIC APIs =================
 export const createComplaint = async (complaintData) => {
   const response = await api.post("/complaints/", complaintData, {
     headers: { "Content-Type": "multipart/form-data" },
@@ -14,19 +14,8 @@ export const getMyComplaints = async () => {
   return response;
 };
 
-// === ADMIN ONLY ===
-export const getAllComplaints = async () => {
-  const response = await api.get("/complaints/"); // or /admin/complaints/ if you have separate endpoint
-  return response;
-};
-
 export const getComplaintDetail = async (reference_id) => {
   const response = await api.get(`/complaints/${reference_id}/`);
-  return response;
-};
-
-export const updateComplaint = async (reference_id, data) => {
-  const response = await api.patch(`/complaints/${reference_id}/`, data); // or PUT if needed
   return response;
 };
 
@@ -35,7 +24,19 @@ export const deleteComplaint = async (reference_id) => {
   return response;
 };
 
-// Smart Routing Call (after approval)
+// ================= ADMIN ONLY APIs =================
+export const getAllComplaints = async () => {
+  const response = await api.get("/complaints/");
+  return response;
+};
+
+// Admin Approval / Rejection (Your dedicated endpoint)
+export const updateComplaintAdmin = async (reference_id, data) => {
+  const response = await api.patch(`/complaints/admin/${reference_id}/`, data);
+  return response;
+};
+
+// Optional: Future forwarding endpoint
 export const forwardToGovt = async (reference_id, category) => {
   const response = await api.post(`/complaints/${reference_id}/forward/`, { category });
   return response;
@@ -44,9 +45,9 @@ export const forwardToGovt = async (reference_id, category) => {
 export default {
   createComplaint,
   getMyComplaints,
-  getAllComplaints,
   getComplaintDetail,
-  updateComplaint,
   deleteComplaint,
+  getAllComplaints,
+  updateComplaintAdmin,   
   forwardToGovt,
 };
