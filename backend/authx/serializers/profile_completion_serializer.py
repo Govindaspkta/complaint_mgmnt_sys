@@ -44,3 +44,6 @@ class ProfileCompletionSerializer(serializers.Serializer):
     #     instance.save()
         
     #     return instance
+
+class ProfielVerificationSerializer(serializers.Serializer):
+    pass
