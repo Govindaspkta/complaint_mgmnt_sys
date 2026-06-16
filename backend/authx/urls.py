@@ -8,5 +8,7 @@ urlpatterns  = [
     path("google-login/",views.GoogleLoginAPIView.as_view(),name="google-login"),
     path("refresh/",views.RefreshTokenApiView.as_view(),name="refresh-token"),
     path("profile-completion/",views.ProfileCompletion.as_view(),name="profile-completion"),
+    # path("profile-verification/",views.ProfileVerificationAdminAPiview.as_view(),name="profile-completion"),
+
 
 ]
