@@ -1,3 +1,5 @@
+from django.core.cache import cache
+from rest_framework.response import Response
 from config.views import BaseApiView, SuperAdminBaseApiView
 from complaint.models import AetherixComplaints
 from config.utils import paginated_response
@@ -7,13 +9,22 @@ class ComplaintListCreateApiViews(BaseApiView):
 
     def get(self, request):
         try:
+
             complaints = AetherixComplaints.objects.filter(is_active=True)
-            return paginated_response(
+            page = request.GET.get("page",1)
+            cache_key = f"complaints_page_{page}"
+            cached = cache.get(cache_key)
+            if cached:
+                return Response(cached)
+
+            response = paginated_response(
                 request=request,
                 queryset=complaints,
                 serializer_class=ComplaintReadOnlySerializer,
                 message="Success"
             )
+            cache.set(cache_key, response.data, 600)
+            return response
         except Exception as e:
          return self.internal_server_error(str(e))
         
@@ -24,6 +35,7 @@ class ComplaintListCreateApiViews(BaseApiView):
                 context={'request':request})
             if serializer.is_valid():
                 serializer.save()
+                cache.clear()
                 return self.success("Complaint creaeted successfully.")
             
             return self.error(message="validation error.", errors=serializer.errors, status_code=400)
@@ -52,9 +64,10 @@ class ComplaintsDetailApiView(BaseApiView):
             is_deleted=False,
             refeerence_id=reference_id
         ).first()
-        serializer = ComplaintSerializer(complaints, partial=True)
+        serializer = ComplaintSerializer(complaints,data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
+            cache.clear()
             return self.success(
                 "success",
                 serializer.data,
@@ -69,6 +82,7 @@ class ComplaintsDetailApiView(BaseApiView):
         )
         complaints.is_deleted =True
         complaints.save()
+        cache.clear()
         return self.success(
             "Complaint Deleted Successfully."
             
