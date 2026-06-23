@@ -1,29 +1,38 @@
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Users,
   ShieldCheck,
   List,
+  LogOut,
 } from "lucide-react";
 
 export default function AdminDashboard() {
   const location = useLocation();
+  const navigate = useNavigate();
 
   // Current path for active link
   const currentPath = location.pathname.split('/').pop() || '';
+
+  const handleLogout = () => {
+    if (window.confirm("Are you sure you want to logout from Admin Panel?")) {
+      localStorage.removeItem("token");   // Clear authentication
+      navigate("/login");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
 
       {/* SIDEBAR */}
-      <div className="w-72 bg-white border-r shadow-lg fixed h-screen overflow-y-auto">
+      <div className="w-72 bg-white border-r shadow-lg fixed h-screen overflow-y-auto flex flex-col">
 
         <div className="p-6 border-b">
           <h1 className="text-3xl font-bold text-primary-700">Aetherix</h1>
           <p className="text-sm text-gray-500">Admin Panel</p>
         </div>
 
-        <nav className="p-4 space-y-1">
+        <nav className="p-4 space-y-1 flex-1">
           <SidebarLink 
             to="" 
             icon={LayoutDashboard} 
@@ -59,6 +68,17 @@ export default function AdminDashboard() {
             isActive={currentPath === 'complaints'} 
           />
         </nav>
+
+        {/* Logout Button - Added at bottom */}
+        <div className="p-4 border-t mt-auto">
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-3 w-full px-4 py-3 text-red-600 hover:bg-red-50 rounded-xl transition-all font-medium"
+          >
+            <LogOut size={22} />
+            <span>Logout</span>
+          </button>
+        </div>
       </div>
 
       {/* MAIN CONTENT */}
