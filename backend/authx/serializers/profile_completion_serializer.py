@@ -2,6 +2,7 @@ from rest_framework import serializers
 from authx.models import AetherixProfile
 
 class ProfileCompletionSerializer(serializers.Serializer):
+    reference_id = serializers.CharField(read_only=True)
 
     citizenship_number = serializers.CharField(
         required=True
@@ -19,6 +20,8 @@ class ProfileCompletionSerializer(serializers.Serializer):
         required =True
     )
     profile_picture = serializers.ImageField(required=True)
+    verification_status = serializers.CharField(read_only=True)
+    is_verified = serializers.BooleanField(read_only=True)
 
     def validate(self, data):
         return data

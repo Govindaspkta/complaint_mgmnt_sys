@@ -44,7 +44,7 @@ class AetherixProfile(BaseModel):
     )
     verification_status = models.CharField(
         choices=STATUS_CHOICES,
-        default="Pending"
+        default="pending"
     )
 
     class Meta:

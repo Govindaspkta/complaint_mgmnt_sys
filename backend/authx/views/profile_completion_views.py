@@ -8,7 +8,7 @@ class ProfileCompletion(BaseApiView):
         profile= AetherixProfile.objects.filter(
             user=request.user
         ).first()
-        if profile and profile.is_verified:
+        if profile:
             if profile.is_verified:
                 return self.error(
                     message="Profile is already verified. Cannot Update.",
@@ -33,6 +33,22 @@ class ProfileCompletion(BaseApiView):
                     data=serializer.data
                 )
         return self.internal_server_error("Validation Error.", errors=serializer.errors)
+    
+class ProfileCompletionDetailApiView(BaseApiView):
+
+    def get(self,request, reference_id):
+         profile = AetherixProfile.objects.filter(
+              user=request.user,
+              reference_id=reference_id,
+            #   is_active=True,
+         ).first()
+         serializer = ProfileCompletionSerializer(profile)
+         return self.success(
+              message="User Profile",
+            data=serializer.data,
+            status_code=200,
+         )
+    
     # def patch(self, request):
     #         profile, created = AetherixProfile.objects.get_or_create(
     #             user=request.user
@@ -70,7 +86,7 @@ class ProfileCompletion(BaseApiView):
                   reference_id =reference_id,
                   is_active=True,
              )
-             if profile and profile.is_vrified is False:
+             if profile and profile.is_verified is False:
                 
                   serializer = ProfileCompletionSerializer(profile, data=request.data, partial=True)
                   if serializer.is_valid():
