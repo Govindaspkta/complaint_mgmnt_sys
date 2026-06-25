@@ -14,7 +14,7 @@ import ProfileVerification from './pages/Admin/ProfileVerification';
 import CategoryManagement from './pages/Admin/CategoryManagement';
 import ComplaintVerification from './pages/Admin/ComplaintVerification';
 
-import ProtectedRoute from './components/ProtectRoute';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
