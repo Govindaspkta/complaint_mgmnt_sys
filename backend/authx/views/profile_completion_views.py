@@ -49,34 +49,34 @@ class ProfileCompletionDetailApiView(BaseApiView):
             status_code=200,
          )
     
-    # def patch(self, request):
-    #         profile, created = AetherixProfile.objects.get_or_create(
-    #             user=request.user
-    #         )
-    #         if profile:
-    #             if profile.is_verified:
-    #                 return self.error(
-    #                     message="Profile is already verified. Cannot Update.",
-    #                     status_code=403
-    #                 )
-    #             serializer = ProfileCompletionSerializer(
-    #                 profile,
-    #                 data=request.data,
-    #                 partial=True,
-    #                 context={'request':request}
-    #             )
-    #         else:
-    #             serializer = ProfileCompletionSerializer(
-    #                 data=request.data,
-    #                 context={'request':request}
-    #             )
-    #         if serializer.is_valid():
-    #                 serializer.save()
-    #                 return self.success(
-    #                     "Profile Updated Successfully.",
-    #                     data=serializer.data
-    #                 )
-    #         return self.internal_server_error("Validation Error.", errors=serializer.errors)
+    def patch(self, request):
+            profile, created = AetherixProfile.objects.get_or_create(
+                user=request.user
+            )
+            if profile:
+                if profile.is_verified:
+                    return self.error(
+                        message="Profile is already verified. Cannot Update.",
+                        status_code=403
+                    )
+                serializer = ProfileCompletionSerializer(
+                    profile,
+                    data=request.data,
+                    partial=True,
+                    context={'request':request}
+                )
+            else:
+                serializer = ProfileCompletionSerializer(
+                    data=request.data,
+                    context={'request':request}
+                )
+            if serializer.is_valid():
+                    serializer.save()
+                    return self.success(
+                        "Profile Updated Successfully.",
+                        data=serializer.data
+                    )
+            return self.internal_server_error("Validation Error.", errors=serializer.errors)
 
     
     class ProfileVerificationAdminAPiview(SuperAdminBaseApiView):
