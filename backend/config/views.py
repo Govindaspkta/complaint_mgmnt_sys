@@ -51,3 +51,6 @@ class BaseApiView(APIView, APIResponse):
 class SuperAdminBaseApiView(APIView, APIResponse):
      authentication_classes =[JWTAuthentication]
      permission_classes = [IsSuperUser]
+
+
+
