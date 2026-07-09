@@ -1,15 +1,13 @@
 from django.db import models
 from config.models import BaseModel
 
+class ProfileVerificationStatus(models.TextChoices):
+    PENDING = "PENFDING", "Pending"
+    APPROVED = "APPROVED", "Approved",
+    REJECTED = "REJECTED", "Rejected"
+    
 class AetherixProfile(BaseModel):
-    STATUS_CHOICES = (
-        ("pending", "Pending"),
-        ("reviewing","Reviewing"),
-        ("in_progress","In Progress"),
-        ("resolved","Resolved"),
-        ("approved","Approved"),
-        ("rejected","Rejected")
-    )
+ 
 
     user = models.OneToOneField(
         'authx.AetherixUsers',
@@ -43,8 +41,8 @@ class AetherixProfile(BaseModel):
         blank=True
     )
     verification_status = models.CharField(
-        choices=STATUS_CHOICES,
-        default="pending"
+        choices=ProfileVerificationStatus.choices,
+        default=ProfileVerificationStatus.PENDING
     )
 
     class Meta:
