@@ -1,6 +1,7 @@
 from config.views import BaseApiView, SuperAdminBaseApiView
 from authx.serializers import ProfileCompletionSerializer
-from authx.models import AetherixProfile
+from authx.models import AetherixProfile, ProfileVerificationStatus
+
 
 class ProfileCompletion(BaseApiView):
 
@@ -9,11 +10,17 @@ class ProfileCompletion(BaseApiView):
             user=request.user
         ).first()
         if profile:
-            if profile.is_verified:
+            if profile.is_verified and profile.verification_status == ProfileVerificationStatus.APPROVED:
                 return self.error(
                     message="Profile is already verified. Cannot Update.",
                     status_code=403
                 )
+            elif profile.verification_status == ProfileVerificationStatus.APPROVED:
+                 return self.error(
+                    message="Profile is pending wait for the response.",
+                    status_code=403
+                )
+                 
             serializer = ProfileCompletionSerializer(
                  profile,
                  data=request.data,

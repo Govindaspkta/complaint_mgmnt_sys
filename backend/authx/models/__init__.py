@@ -1,2 +1,2 @@
 from .aetherix_users import AetherixUsers
-from .aetherix_profile import AetherixProfile
+from .aetherix_profile import AetherixProfile, ProfileVerificationStatus
