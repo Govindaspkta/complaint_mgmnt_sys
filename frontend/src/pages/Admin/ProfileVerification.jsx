@@ -11,7 +11,7 @@ export default function ProfileVerification() {
   const fetchProfiles = async () => {
     try {
       setLoading(true);
-      const res = await api.get("/admin/profile-verification/");
+      const res = await api.get("/authx/profile-verification/");
       const data = res.data?.data || res.data || [];
       setProfiles(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -28,7 +28,7 @@ export default function ProfileVerification() {
 
   const handleVerify = async (reference_id) => {
     try {
-      await api.patch(`/admin/profile-verification/${reference_id}/`, {
+      await api.patch(`/authx/profile-verification/${reference_id}/`, {
         verification_status: "APPROVED",
       });
       fetchProfiles();
@@ -46,7 +46,7 @@ export default function ProfileVerification() {
     if (!window.confirm("Reject this profile?")) return;
 
     try {
-      await api.patch(`/admin/profile-verification/${reference_id}/`, {
+      await api.patch(`/authx/profile-verification/${reference_id}/`, {
         verification_status: "REJECTED",
         rejection_reason: rejectReason,
       });
