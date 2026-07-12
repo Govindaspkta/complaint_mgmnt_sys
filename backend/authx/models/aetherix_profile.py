@@ -44,6 +44,10 @@ class AetherixProfile(BaseModel):
         choices=ProfileVerificationStatus.choices,
         default=ProfileVerificationStatus.PENDING
     )
+    rejection_reason = models.CharField(
+        max_length=255,
+        blank=True
+    )
 
     class Meta:
         db_table = "aetherix_profiles"

@@ -10,7 +10,10 @@ class ComplaintListCreateApiViews(BaseApiView):
     def get(self, request):
         try:
 
-            complaints = AetherixComplaints.objects.filter(is_active=True)
+            complaints = AetherixComplaints.objects.filter(
+                is_active=True,
+                data=request.data
+                )
             page = request.GET.get("page",1)
             cache_key = f"complaints_page_{page}"
             cached = cache.get(cache_key)

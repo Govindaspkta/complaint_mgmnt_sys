@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from authx.models import AetherixProfile
+from authx.models import AetherixProfile, ProfileVerificationStatus
 
 class ProfileCompletionSerializer(serializers.Serializer):
     reference_id = serializers.CharField(read_only=True)
@@ -33,7 +33,20 @@ class ProfileCompletionSerializer(serializers.Serializer):
         #     )
         # return data
         
-
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        
+        request = self.context.get('request')
+        if request:
+            if instance.profile_picture:
+                representation['profile_picture'] = request.build_absolute_uri(instance.profile_picture.url)
+            if instance.citizenship_front:
+                representation['citizenship_front'] = request.build_absolute_uri(instance.citizenship_front.url)
+            if instance.citizenship_back:
+                representation['citizenship_back'] = request.build_absolute_uri(instance.citizenship_back.url)
+        
+        return representation
+    
     def create(self, validated_data):
         user = self.context["request"].user
         return AetherixProfile.objects.create(
@@ -48,5 +61,22 @@ class ProfileCompletionSerializer(serializers.Serializer):
         
         return instance
 
-class ProfielVerificationSerializer(serializers.Serializer):
-    pass
+class ProfileVerificationSerializer(serializers.Serializer):
+    reference_id = serializers.CharField(read_only=True)
+    citizenship_number = serializers.CharField(read_only=True)
+    address = serializers.CharField(read_only=True)
+    citizenship_front = serializers.ImageField(read_only=True)
+    citizenship_back = serializers.ImageField(read_only=True)
+    dob = serializers.DateField(read_only=True)
+    profile_picture = serializers.ImageField(read_only=True)
+
+    verification_status = serializers.ChoiceField(
+        choices=ProfileVerificationStatus.choices
+    )
+
+    rejection_reason = serializers.CharField(
+        required=False,
+        allow_blank=True
+    )
+
+    is_verified = serializers.BooleanField(read_only=True)
