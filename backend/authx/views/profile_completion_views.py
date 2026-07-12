@@ -100,9 +100,9 @@ class ProfileVerificationAdminAPiview(SuperAdminBaseApiView):
         
 
         def get(self, request):
-            profile =AetherixProfile.obects.filter(
+            profile =AetherixProfile.objects.filter(
                 verification_status = ProfileVerificationStatus.PENDING
-             ).select_related('aetherix_users')
+             ).select_related('user')
             
             serializer = ProfileCompletionSerializer(
                 profile,
@@ -115,35 +115,42 @@ class ProfileVerificationAdminAPiview(SuperAdminBaseApiView):
                  200
             )
         def patch(self, request, reference_id):
-             profile = AetherixProfile.objects.get(
-                  reference_id =reference_id,
-                  is_active=True,
-             )
-             if profile and profile.is_verified is False:
-                
-                  serializer = ProfileCompletionSerializer(profile, data=request.data, partial=True)
-                  if serializer.is_valid():
-                       serializer.save()
-                       profile.is_verified = True
-                       profile.save()
-                       if profile.verification_status == ProfileVerificationStatus.APPROVED:
-                           profile.is_verified = True
+             try:
+                profile = AetherixProfile.objects.get(
+                    reference_id =reference_id,
+                    is_active=True,
+                )
+                if profile and profile.is_verified is False:
+                    
+                    serializer = ProfileCompletionSerializer(profile, data=request.data, partial=True)
+                    if serializer.is_valid():
+                        serializer.save()
+                        profile.is_verified = True
+                        profile.save()
+                        if profile.verification_status == ProfileVerificationStatus.APPROVED:
+                            profile.is_verified = True
 
-                       elif profile.verification_status == ProfileVerificationStatus.REJECTED:
-                           profile.is_verified = False
+                        elif profile.verification_status == ProfileVerificationStatus.REJECTED:
+                            profile.is_verified = False
 
-                       profile.save()
+                        profile.save()
 
-                       return self.success(
-                            message="success",
-                            data=serializer.data,
-                            status_code=201
-                       )
+                        return self.success(
+                                message="success",
+                                data=serializer.data,
+                                status_code=201
+                        )
+                    return self.internal_server_error(
+                        "internal server error",
+                        serializer.error,
+                        500
+
+                    )
+             except Exception as exe:
                   return self.internal_server_error(
-                       "internal server error",
-                       serializer.error,
-                       500
-
+                       "validation failed.",
+                       serializer.errors,
+                       400
                   )
         
 

@@ -2,7 +2,7 @@ from django.db import models
 from config.models import BaseModel
 
 class ProfileVerificationStatus(models.TextChoices):
-    PENDING = "PENFDING", "Pending"
+    PENDING = "PENDING", "Pending"
     APPROVED = "APPROVED", "Approved",
     REJECTED = "REJECTED", "Rejected"
     
