@@ -30,6 +30,7 @@ export default function ProfileCompletion() {
     try {
       const res = await api.get("/authx/profile-completion/details/");
       const data = res.data?.data || res.data;
+      
       setProfile(data);
 
       if (data) {
@@ -43,24 +44,37 @@ export default function ProfileCompletion() {
         if (data.citizenship_front) setFrontPreview(data.citizenship_front);
         if (data.citizenship_back) setBackPreview(data.citizenship_back);
       }
+      return data;
     } catch (err) {
       console.log("No profile found yet");
+      setProfile(null);
+      return null;
     } finally {
       setPageLoading(false);
     }
   };
 
+  // Only allow submission if NOT APPROVED and NOT PENDING
   const canSubmit = () => {
-    if (!profile) return true;
+    if (!profile) return true; // First time
     return profile.verification_status === "REJECTED";
   };
 
   const getStatus = () => {
-    if (!profile) return { color: "bg-blue-100", text: "Not Submitted Yet" };
+    if (!profile) 
+      return { color: "bg-blue-100 text-blue-800", text: "Not Submitted Yet" };
+
     const st = profile.verification_status;
-    if (st === "PENDING") return { color: "bg-yellow-100 text-yellow-800", text: "PENDING - Under Review" };
-    if (st === "APPROVED" || st === "VERIFIED") return { color: "bg-green-100 text-green-800", text: "APPROVED - Verified" };
-    if (st === "REJECTED") return { color: "bg-red-100 text-red-800", text: "REJECTED - Resubmit Allowed" };
+    if (st === "PENDING") 
+      return { color: "bg-yellow-100 text-yellow-800", text: "PENDING - Under Review" };
+    if (st === "APPROVED") 
+      return { color: "bg-green-100 text-green-800", text: "APPROVED - Verified" };
+    if (st === "REJECTED") 
+      return { 
+        color: "bg-red-100 text-red-800", 
+        text: "REJECTED - You can resubmit below" 
+      };
+    
     return { color: "bg-gray-100", text: st };
   };
 
@@ -97,7 +111,7 @@ export default function ProfileCompletion() {
     setErrors({});
 
     if (!canSubmit()) {
-      setErrors({ api: "You cannot update your profile at this time." });
+      setErrors({ api: "You cannot update your profile right now." });
       return;
     }
 
@@ -112,15 +126,40 @@ export default function ProfileCompletion() {
       if (citizenshipFront) data.append("citizenship_front", citizenshipFront);
       if (citizenshipBack) data.append("citizenship_back", citizenshipBack);
 
+      // Use POST (your backend handles both create and update)
       await api.post("/authx/profile-completion/", data, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      setSuccess("Profile submitted successfully. Now in PENDING status.");
-      fetchProfile();
+      // Refresh profile from server + force PENDING
+      const freshProfile = await fetchProfile();
+      
+      if (freshProfile) {
+        setProfile({
+          ...freshProfile,
+          verification_status: "PENDING"
+        });
+      } else {
+        setProfile(prev => ({
+          ...(prev || {}),
+          verification_status: "PENDING"
+        }));
+      }
+
+      setSuccess("Profile submitted successfully. Now under review (PENDING).");
+
+      // Clear uploaded files
+      setProfilePicture(null);
+      setCitizenshipFront(null);
+      setCitizenshipBack(null);
+
     } catch (err) {
       console.error(err);
-      setErrors({ api: err.response?.data?.message || "Failed to submit profile." });
+      setErrors({ 
+        api: err.response?.data?.message || 
+             err.response?.data?.error || 
+             "Failed to submit profile." 
+      });
     } finally {
       setLoading(false);
     }
@@ -133,7 +172,7 @@ export default function ProfileCompletion() {
   return (
     <div className="min-h-screen bg-slate-50 py-10 px-4">
       <div className="max-w-5xl mx-auto bg-white rounded-3xl shadow-xl overflow-hidden">
-        {/* Prominent Status Header */}
+        {/* Status Header */}
         <div className={`p-6 text-center text-xl font-bold ${status.color}`}>
           Current Status: {status.text}
         </div>
@@ -144,8 +183,16 @@ export default function ProfileCompletion() {
         </div>
 
         <form onSubmit={handleSubmit} className="p-8 space-y-8">
-          {success && <div className="bg-green-100 p-4 rounded-xl">{success}</div>}
-          {errors.api && <div className="bg-red-100 p-4 rounded-xl">{errors.api}</div>}
+          {success && (
+            <div className="bg-green-100 border border-green-400 text-green-700 p-4 rounded-xl">
+              {success}
+            </div>
+          )}
+          {errors.api && (
+            <div className="bg-red-100 border border-red-400 text-red-700 p-4 rounded-xl">
+              {errors.api}
+            </div>
+          )}
 
           {/* Profile Picture */}
           <div className="flex justify-center">
@@ -155,9 +202,17 @@ export default function ProfileCompletion() {
                 alt="Profile"
                 className="w-36 h-36 rounded-full object-cover border-4 border-slate-200 shadow"
               />
-              <label className={`mt-4 inline-block cursor-pointer ${!canSubmit() ? 'opacity-50 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'} text-white px-5 py-2 rounded-xl transition`}>
+              <label 
+                className={`mt-4 inline-block cursor-pointer ${!canSubmit() ? 'opacity-50 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'} text-white px-6 py-2.5 rounded-xl transition`}
+              >
                 Upload Profile Picture
-                <input type="file" accept="image/*" onChange={handleProfilePicture} className="hidden" disabled={!canSubmit()} />
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  onChange={handleProfilePicture} 
+                  className="hidden" 
+                  disabled={!canSubmit()} 
+                />
               </label>
             </div>
           </div>
@@ -168,15 +223,36 @@ export default function ProfileCompletion() {
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <label className="block mb-2 font-medium">Citizenship Number</label>
-                <input type="text" name="citizenship_number" value={formData.citizenship_number} onChange={handleChange} disabled={!canSubmit()} className="w-full border border-slate-300 rounded-xl p-3 disabled:bg-gray-100" />
+                <input
+                  type="text"
+                  name="citizenship_number"
+                  value={formData.citizenship_number}
+                  onChange={handleChange}
+                  disabled={!canSubmit()}
+                  className="w-full border border-slate-300 rounded-xl p-3 disabled:bg-gray-100 focus:outline-none focus:border-blue-500"
+                />
               </div>
               <div>
                 <label className="block mb-2 font-medium">Date of Birth</label>
-                <input type="date" name="dob" value={formData.dob} onChange={handleChange} disabled={!canSubmit()} className="w-full border border-slate-300 rounded-xl p-3 disabled:bg-gray-100" />
+                <input
+                  type="date"
+                  name="dob"
+                  value={formData.dob}
+                  onChange={handleChange}
+                  disabled={!canSubmit()}
+                  className="w-full border border-slate-300 rounded-xl p-3 disabled:bg-gray-100 focus:outline-none focus:border-blue-500"
+                />
               </div>
               <div className="md:col-span-2">
                 <label className="block mb-2 font-medium">Address</label>
-                <input type="text" name="address" value={formData.address} onChange={handleChange} disabled={!canSubmit()} className="w-full border border-slate-300 rounded-xl p-3 disabled:bg-gray-100" />
+                <input
+                  type="text"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleChange}
+                  disabled={!canSubmit()}
+                  className="w-full border border-slate-300 rounded-xl p-3 disabled:bg-gray-100 focus:outline-none focus:border-blue-500"
+                />
               </div>
             </div>
           </div>
@@ -187,25 +263,37 @@ export default function ProfileCompletion() {
             <div className="grid md:grid-cols-2 gap-6">
               <div>
                 <label className="block mb-3 font-medium">Citizenship Front</label>
-                <label className={`cursor-pointer block border-2 border-dashed border-slate-300 rounded-2xl overflow-hidden ${!canSubmit() ? 'opacity-50' : 'hover:border-blue-500 transition'}`}>
+                <label className={`cursor-pointer block border-2 border-dashed border-slate-300 rounded-2xl overflow-hidden h-60 ${!canSubmit() ? 'opacity-50' : 'hover:border-blue-500 transition'}`}>
                   {frontPreview ? (
-                    <img src={frontPreview} alt="Front" className="h-60 w-full object-cover" />
+                    <img src={frontPreview} alt="Front" className="h-full w-full object-cover" />
                   ) : (
-                    <div className="h-60 flex items-center justify-center text-slate-400">Click to upload front image</div>
+                    <div className="h-full flex items-center justify-center text-slate-400">Click to upload front image</div>
                   )}
-                  <input type="file" accept="image/*" onChange={handleFront} className="hidden" disabled={!canSubmit()} />
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    onChange={handleFront} 
+                    className="hidden" 
+                    disabled={!canSubmit()} 
+                  />
                 </label>
               </div>
 
               <div>
                 <label className="block mb-3 font-medium">Citizenship Back</label>
-                <label className={`cursor-pointer block border-2 border-dashed border-slate-300 rounded-2xl overflow-hidden ${!canSubmit() ? 'opacity-50' : 'hover:border-blue-500 transition'}`}>
+                <label className={`cursor-pointer block border-2 border-dashed border-slate-300 rounded-2xl overflow-hidden h-60 ${!canSubmit() ? 'opacity-50' : 'hover:border-blue-500 transition'}`}>
                   {backPreview ? (
-                    <img src={backPreview} alt="Back" className="h-60 w-full object-cover" />
+                    <img src={backPreview} alt="Back" className="h-full w-full object-cover" />
                   ) : (
-                    <div className="h-60 flex items-center justify-center text-slate-400">Click to upload back image</div>
+                    <div className="h-full flex items-center justify-center text-slate-400">Click to upload back image</div>
                   )}
-                  <input type="file" accept="image/*" onChange={handleBack} className="hidden" disabled={!canSubmit()} />
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    onChange={handleBack} 
+                    className="hidden" 
+                    disabled={!canSubmit()} 
+                  />
                 </label>
               </div>
             </div>
@@ -214,9 +302,16 @@ export default function ProfileCompletion() {
           <button
             type="submit"
             disabled={loading || !canSubmit()}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white py-4 rounded-xl font-semibold transition"
+            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white py-4 rounded-xl font-semibold text-lg transition"
           >
-            {loading ? "Submitting Profile..." : canSubmit() ? "Submit Profile" : "Cannot Submit Now"}
+            {loading 
+              ? "Submitting..." 
+              : canSubmit() 
+              ? "Submit / Resubmit Profile" 
+              : profile?.verification_status === "PENDING" 
+              ? "Pending Admin Review - Cannot Modify" 
+              : "Profile Approved - Cannot Modify"
+            }
           </button>
         </form>
       </div>
