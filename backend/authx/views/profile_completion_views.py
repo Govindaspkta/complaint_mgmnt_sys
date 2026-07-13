@@ -1,5 +1,5 @@
 from config.views import BaseApiView, SuperAdminBaseApiView
-from authx.serializers import ProfileCompletionSerializer
+from authx.serializers import ProfileCompletionSerializer, ProfileVerificationSerializer
 from authx.models import AetherixProfile, ProfileVerificationStatus
 
 
@@ -21,14 +21,14 @@ class ProfileCompletion(BaseApiView):
                     status_code=403
                 )
                  
-            serializer = ProfileCompletionSerializer(
+            serializer = ProfileVerificationSerializer(
                  profile,
                  data=request.data,
                  partial=True,
                  context={'request':request}
             )
         else:
-            serializer = ProfileCompletionSerializer(
+            serializer = ProfileVerificationSerializer(
                 data=request.data,
                 context={'request':request},
                 partial=True
@@ -114,43 +114,80 @@ class ProfileVerificationAdminAPiview(SuperAdminBaseApiView):
                  serializer.data,
                  200
             )
+        # def patch(self, request, reference_id):
+        #      try:
+        #         profile = AetherixProfile.objects.get(
+        #             reference_id =reference_id,
+        #             is_active=True,
+        #         )
+        #      except AetherixProfile.DoesNotExist:
+        #         return self.error(
+        #              "Profile Not found," ,
+        #              404
+        #         )
+        #      serializer = ProfileCompletionSerializer(
+        #           profile, 
+        #           data=request.data, 
+        #           partial=True
+        #     )
+        #      if serializer.is_valid():
+        #          updated_profile=serializer.save()
+
+        #          if updated_profile.verification_status == ProfileVerificationStatus.APPROVED:
+        #              updated_profile.is_verified = True      
+        #          elif updated_profile.verification_status == ProfileVerificationStatus.REJECTED:
+        #              updated_profile.is_verified = False
+        #          else:
+        #               updated_profile.is_verified =False   
+
+        #          updated_profile.save() 
+        #          refreshed_serializer = ProfileCompletionSerializer(
+        #               updated_profile,
+        #               context={"request":request}
+        #          )
+        #          return self.success(
+        #                  message="success",
+        #                  data=refreshed_serializer.data,
+        #                  status_code=201
+        #          )
+                   
+        #      return self.internal_server_error(
+        #                "validation failed.",
+        #                serializer.errors,
+        #                400
+        #           )
         def patch(self, request, reference_id):
-             try:
+            try:
                 profile = AetherixProfile.objects.get(
-                    reference_id =reference_id,
-                    is_active=True,
+                    reference_id=reference_id,
+                    is_active=True
                 )
-                if profile and profile.is_verified is False:
-                    
-                    serializer = ProfileCompletionSerializer(profile, data=request.data, partial=True)
-                    if serializer.is_valid():
-                        serializer.save()
-                        profile.is_verified = True
-                        profile.save()
-                        if profile.verification_status == ProfileVerificationStatus.APPROVED:
-                            profile.is_verified = True
+            except AetherixProfile.DoesNotExist:
+                return self.error("Profile not found", 404)
 
-                        elif profile.verification_status == ProfileVerificationStatus.REJECTED:
-                            profile.is_verified = False
+            serializer = ProfileVerificationSerializer(
+                profile, 
+                data=request.data, 
+                partial=True
+            )
 
-                        profile.save()
+            if serializer.is_valid():
+                updated_profile = serializer.save()
 
-                        return self.success(
-                                message="success",
-                                data=serializer.data,
-                                status_code=201
-                        )
-                    return self.internal_server_error(
-                        "internal server error",
-                        serializer.error,
-                        500
+                # Sync is_verified
+                updated_profile.is_verified = (updated_profile.verification_status == ProfileVerificationStatus.APPROVED)
+                updated_profile.save()
 
-                    )
-             except Exception as exe:
-                  return self.internal_server_error(
-                       "validation failed.",
-                       serializer.errors,
-                       400
-                  )
-        
+                refreshed_serializer = ProfileVerificationSerializer(
+                    updated_profile, context={'request': request}
+                )
+
+                return self.success(
+                    message="Profile updated successfully",
+                    data=refreshed_serializer.data,
+                    status_code=200
+                )
+
+            return self.internal_server_error("Validation failed", serializer.errors, 400)
+            
 

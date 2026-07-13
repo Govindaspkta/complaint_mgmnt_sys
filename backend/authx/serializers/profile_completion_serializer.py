@@ -60,23 +60,43 @@ class ProfileCompletionSerializer(serializers.Serializer):
         instance.save()
         
         return instance
+    
+class ProfileVerificationSerializer(serializers.ModelSerializer):
+    user = serializers.SerializerMethodField()
 
-class ProfileVerificationSerializer(serializers.Serializer):
-    reference_id = serializers.CharField(read_only=True)
-    citizenship_number = serializers.CharField(read_only=True)
-    address = serializers.CharField(read_only=True)
-    citizenship_front = serializers.ImageField(read_only=True)
-    citizenship_back = serializers.ImageField(read_only=True)
-    dob = serializers.DateField(read_only=True)
-    profile_picture = serializers.ImageField(read_only=True)
+    class Meta:
+        model = AetherixProfile
+        fields = [
+            'reference_id', 'user', 'citizenship_number', 'address', 'dob',
+            'profile_picture', 'citizenship_front', 'citizenship_back',
+            'verification_status', 'rejection_reason', 'is_verified'
+        ]
+        read_only_fields = ['reference_id', 'user', 'citizenship_number', 
+                           'address', 'dob', 'profile_picture', 
+                           'citizenship_front', 'citizenship_back', 'is_verified']
+    
+    def get_user(self, obj):
+        return {
+            'username': obj.user.username if obj.user else None,
+            'email': obj.user.email if obj.user else None,
+        }
 
-    verification_status = serializers.ChoiceField(
-        choices=ProfileVerificationStatus.choices
-    )
+# class ProfileVerificationSerializer(serializers.Serializer):
+#     reference_id = serializers.CharField(read_only=True)
+#     citizenship_number = serializers.CharField(read_only=True)
+#     address = serializers.CharField(read_only=True)
+#     citizenship_front = serializers.ImageField(read_only=True)
+#     citizenship_back = serializers.ImageField(read_only=True)
+#     dob = serializers.DateField(read_only=True)
+#     profile_picture = serializers.ImageField(read_only=True)
 
-    rejection_reason = serializers.CharField(
-        required=False,
-        allow_blank=True
-    )
+#     verification_status = serializers.ChoiceField(
+#         choices=ProfileVerificationStatus.choices
+#     )
 
-    is_verified = serializers.BooleanField(read_only=True)
+#     rejection_reason = serializers.CharField(
+#         required=False,
+#         allow_blank=True
+#     )
+
+#     is_verified = serializers.BooleanField(read_only=True)
