@@ -2,7 +2,6 @@ from config.views import BaseApiView, SuperAdminBaseApiView
 from authx.serializers import ProfileCompletionSerializer, ProfileVerificationSerializer
 from authx.models import AetherixProfile, ProfileVerificationStatus
 
-
 class ProfileCompletion(BaseApiView):
 
     def post(self, request):

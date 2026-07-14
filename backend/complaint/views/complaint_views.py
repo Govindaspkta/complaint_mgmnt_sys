@@ -93,6 +93,32 @@ class ComplaintsDetailApiView(BaseApiView):
     
 class ComplaintsAdminUpdateApiView(SuperAdminBaseApiView):
 
+        #  def get(self, request):
+        #     profiles =AetherixProfile.objects.filter(
+        #         verification_status__in = [
+        #              ProfileVerificationStatus.PENDING,
+        #              ProfileVerificationStatus.REJECTED,
+        #              ProfileVerificationStatus.APPROVED,
+
+        #         ]
+                                       
+        #      ).select_related('user')
+        #     # profiles = AetherixProfile.objects.all().order_by('-id')
+            
+        #     serializer = ProfileCompletionSerializer(
+        #         profiles,
+        #         many=True,
+        #         context={'request':request}
+        #     )
+        #     print("Total profiles found:", profiles.count())  # Check server logs
+        #     print("Statuses:", [p.verification_status for p in profiles])
+        #     return self.success(
+        #          "Success",
+        #          serializer.data,
+        #          200
+        #     )
+        
+
     def patch(self, request, reference_id):
         complaints = AetherixComplaints.objects.filter(
             is_active=True,
