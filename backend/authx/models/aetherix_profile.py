@@ -1,13 +1,13 @@
 from django.db import models
 from config.models import BaseModel
-
+# from 
 class ProfileVerificationStatus(models.TextChoices):
     PENDING = "PENDING", "Pending"
-    APPROVED = "APPROVED", "Approved",
+    APPROVED = "APPROVED", "Approved"
     REJECTED = "REJECTED", "Rejected"
     
+
 class AetherixProfile(BaseModel):
- 
 
     user = models.OneToOneField(
         'authx.AetherixUsers',

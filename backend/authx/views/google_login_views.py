@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
 
 class GoogleLoginAPIView(PublicApiView):
+    
     def post(self, request):
         serializer = GoogleLoginSerializer(data=request.data)
         if not serializer.is_valid():

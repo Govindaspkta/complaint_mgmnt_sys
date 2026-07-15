@@ -7,7 +7,6 @@ class ComplaintSerializer(serializers.Serializer):
 
     user = serializers.SlugRelatedField(
         read_only=True,
-        # queryset = AetherixUsers.objects.all(),
         slug_field ="reference_id",
         )
     category = serializers.SlugRelatedField(
@@ -86,7 +85,7 @@ class ComplaintReadOnlySerializer(serializers.Serializer):
         slug_field="reference_id"
     )
     
-    category = CategorySerializer(read_only=True)   # Full category object with name
+    category = CategorySerializer(read_only=True)  
     
     title = serializers.CharField(read_only=True)
     province = serializers.CharField(read_only=True)

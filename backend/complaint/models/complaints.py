@@ -1,22 +1,21 @@
 from django.db import models
 from config.models import BaseModel
 
+class ComplaintStatusChoices(models.TextChoices):
+        PENDING = "PENDING", "Pending"
+        APPROVED = "APPROVED", "Approved"
+        INPROGRESS = "INPROGRESS", "Inprogress"
+        RESOLVEED = "RESOLVED", "Resolved"
+        REJECTED = "REJECTED", "Rejected"
+    
+class ComplaintPriorityChoices(models.TextChoices):
+        LOW = "LOW", "LOW"
+        MEDIUM = "MEDIUM", "Medium"
+        HIGH = "HIGH", "High"
+        URGENT = "URGENT", "Urgent"
+
 class AetherixComplaints(BaseModel):
 
-    STATUS_CHOICES = (
-        ("pending", "Pending"),
-        ("reviewing","Reviewing"),
-        ("in_progress","In Progress"),
-        ("resolved","Resolved"),
-        ("approved","Approved"),
-        ("rejected","Rejected")
-    )
-    PRIORITY_CHOICES = (
-        ("low", "Low"),
-        ("medium","Medium"),
-        ("high", "High"),
-        ("urgent", "Urgent")
-    )
     user = models.ForeignKey(
         'authx.AetherixUsers',
         on_delete = models.PROTECT,
@@ -56,13 +55,13 @@ class AetherixComplaints(BaseModel):
     rejection_reason = models.TextField(blank=False, null=False, default="no rejection")
     status = models.CharField(
         max_length=20,
-        choices=STATUS_CHOICES,
-        default="pending"
+        choices=ComplaintStatusChoices.choices,
+        default="PENDING"
     )
     priority = models.CharField(
         max_length=20,
-        choices=PRIORITY_CHOICES,
-        default="medium"
+        choices=ComplaintPriorityChoices.choices,
+        default="MEDIUM"
     )
 
     class Meta:
