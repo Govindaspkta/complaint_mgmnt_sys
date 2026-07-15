@@ -4,6 +4,8 @@ from config.views import BaseApiView, SuperAdminBaseApiView
 from complaint.models import AetherixComplaints
 from config.utils import paginated_response
 from complaint.serializers import ComplaintSerializer, ComplaintReadOnlySerializer
+from authx.models import AetherixProfile, ProfileVerificationStatus
+
 
 class ComplaintListCreateApiViews(BaseApiView):
 
@@ -33,9 +35,23 @@ class ComplaintListCreateApiViews(BaseApiView):
         
     def post(self, request):
         try:
+            profile = AetherixProfile.objects.filter(user=request.user).first()
+            if not profile:
+                return self.error(
+                    message="Please complete your profile first.",
+                    status_code=403,
+
+                )
+            if profile.verification_status != ProfileVerificationStatus.APPROVED:
+                status_text = profile.verification_status or "Not Submitted"
+                return self.error(
+                    message=f"Your profile is {status_text}. Only users with APPROVED profile can submit complaints.",
+                    status_code=403
+                )
             serializer = ComplaintSerializer(
                 data=request.data,
                 context={'request':request})
+            
             if serializer.is_valid():
                 serializer.save()
                 cache.clear()
@@ -52,6 +68,7 @@ class ComplaintsDetailApiView(BaseApiView):
         complaints = AetherixComplaints.objects.filter(
             is_active=True,
             is_deleted=False,
+            user=request.user,
             reference_id=reference_id
         )
         serializer = ComplaintSerializer(complaints)
@@ -65,7 +82,8 @@ class ComplaintsDetailApiView(BaseApiView):
         complaints = AetherixComplaints.objects.filter(
             is_active=True,
             is_deleted=False,
-            refeerence_id=reference_id
+            user=request.user,
+            reference_id=reference_id
         ).first()
         serializer = ComplaintSerializer(complaints,data=request.data, partial=True)
         if serializer.is_valid():
@@ -82,6 +100,7 @@ class ComplaintsDetailApiView(BaseApiView):
         complaints = AetherixComplaints.objects.filter(
             reference_id =reference_id,
             is_deleted=False,
+            user=request.user
         )
         complaints.is_deleted =True
         complaints.save()
