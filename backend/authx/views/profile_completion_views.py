@@ -116,8 +116,8 @@ class ProfileVerificationAdminAPiview(SuperAdminBaseApiView):
                 many=True,
                 context={'request':request}
             )
-            print("Total profiles found:", profiles.count())  # Check server logs
-            print("Statuses:", [p.verification_status for p in profiles])
+            # print("Total profiles found:", profiles.count()) 
+            # print("Statuses:", [p.verification_status for p in profiles])
             return self.success(
                  "Success",
                  serializer.data,
