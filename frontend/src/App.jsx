@@ -7,6 +7,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import ProfileCompletion from './pages/ProfileCompletion';
 import MyComplaints from './pages/MyComplaints';
+import AllApprovedComplaints from './pages/AllApprovedComplaints';   // ← THIS WAS MISSING
 
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import DashboardOverview from './pages/Admin/DashboardOverview';
@@ -30,6 +31,9 @@ function App() {
           <Route path="/complaints" element={<ProtectedRoute><MyComplaints /></ProtectedRoute>} />
           <Route path="/my-complaints" element={<ProtectedRoute><MyComplaints /></ProtectedRoute>} />
           <Route path="/profile-completion" element={<ProtectedRoute><ProfileCompletion /></ProtectedRoute>} />
+          
+          {/* New Route */}
+          <Route path="/all-approved-complaints" element={<ProtectedRoute><AllApprovedComplaints /></ProtectedRoute>} />
 
           <Route path="/admin" element={<ProtectedRoute adminOnly={true}><AdminDashboard /></ProtectedRoute>}>
             <Route index element={<DashboardOverview />} />
