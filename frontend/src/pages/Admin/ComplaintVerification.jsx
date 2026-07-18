@@ -368,7 +368,6 @@
 
 
 
-
 import { useEffect, useState, useCallback } from "react";
 import { getAllComplaints, updateComplaintAdmin } from "../../api/complaintApi";
 import { ShieldCheck } from 'lucide-react';
@@ -390,7 +389,7 @@ export default function ComplaintVerification() {
       
       let data = res.data?.data?.results || res.data?.results || res.data?.data || res.data || [];
 
-      // Filter ONLY pending
+      // Filter ONLY pending complaints
       const pending = data.filter(c => 
         (c.complaint_status || c.status || "").toString().toLowerCase() === "pending"
       );
@@ -413,7 +412,7 @@ export default function ComplaintVerification() {
     try {
       await updateComplaintAdmin(reference_id, { status: "APPROVED" });
       alert("✅ Complaint Approved Successfully!");
-      await fetchComplaints(); // Force refresh
+      await fetchComplaints(); // Refresh list
     } catch (err) {
       console.error(err);
       alert(err.response?.data?.message || "Failed to approve complaint");
@@ -442,7 +441,7 @@ export default function ComplaintVerification() {
       alert("❌ Complaint Rejected Successfully");
       setRejectModal(null);
       setRejectReason("");
-      await fetchComplaints(); // Force refresh
+      await fetchComplaints(); // Refresh list - removes from view
     } catch (err) {
       console.error(err);
       alert(err.response?.data?.message || "Failed to reject complaint");

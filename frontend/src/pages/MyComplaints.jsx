@@ -61,7 +61,8 @@
 
 //       const matchesStatus = 
 //         statusFilter === 'All' || 
-//         (c.status && c.status.toLowerCase() === statusFilter.toLowerCase());
+//         (c.status && c.status.toLowerCase() === statusFilter.toLowerCase()) ||
+//         (c.complaint_status && c.complaint_status.toLowerCase() === statusFilter.toLowerCase());
 
 //       return matchesSearch && matchesStatus;
 //     });
@@ -70,7 +71,7 @@
 //   }, [search, statusFilter, complaints]);
 
 //   const getStatusBadge = (status) => {
-//     const s = status?.toLowerCase() || '';
+//     const s = (status || '').toLowerCase();
 //     if (s.includes('pending')) return 'bg-amber-100 text-amber-700 border border-amber-200';
 //     if (s.includes('approved')) return 'bg-blue-100 text-blue-700 border border-blue-200';
 //     if (s.includes('progress') || s.includes('processing')) return 'bg-orange-100 text-orange-700 border border-orange-200';
@@ -80,7 +81,7 @@
 //   };
 
 //   const getStatusIcon = (status) => {
-//     const s = status?.toLowerCase() || '';
+//     const s = (status || '').toLowerCase();
 //     if (s.includes('pending')) return <Clock size={18} />;
 //     if (s.includes('resolved')) return <CheckCircle size={18} />;
 //     if (s.includes('rejected')) return <XCircle size={18} />;
@@ -89,19 +90,15 @@
 //   };
 
 //   const getPriorityColor = (priority) => {
-//     if (priority === 'high' || priority === 'urgent') {
-//       return 'bg-red-100 text-red-700';
-//     }
-//     if (priority === 'low') {
-//       return 'bg-green-100 text-green-700';
-//     }
+//     if (priority === 'high' || priority === 'urgent') return 'bg-red-100 text-red-700';
+//     if (priority === 'low') return 'bg-green-100 text-green-700';
 //     return 'bg-amber-100 text-amber-700';
 //   };
 
 //   const getComplaintStats = () => {
 //     const total = complaints.length;
-//     const pending = complaints.filter(c => c.status?.toLowerCase().includes('pending')).length;
-//     const resolved = complaints.filter(c => c.status?.toLowerCase().includes('resolved')).length;
+//     const pending = complaints.filter(c => (c.status || c.complaint_status || '').toLowerCase().includes('pending')).length;
+//     const resolved = complaints.filter(c => (c.status || c.complaint_status || '').toLowerCase().includes('resolved')).length;
 //     return { total, pending, resolved };
 //   };
 
@@ -190,7 +187,6 @@
 //         <div className="mb-8 sm:mb-10 rounded-2xl sm:rounded-3xl border p-4 sm:p-6 lg:p-8" 
 //              style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border)' }}>
 //           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
-//             {/* Search Input */}
 //             <div className="lg:col-span-2 relative">
 //               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2" size={20} style={{ color: 'var(--text-tertiary)' }} />
 //               <input
@@ -203,7 +199,6 @@
 //               />
 //             </div>
 
-//             {/* Status Filter */}
 //             <div className="flex items-center gap-2 sm:gap-3">
 //               <Filter size={20} style={{ color: 'var(--text-tertiary)' }} className="hidden sm:block" />
 //               <select
@@ -234,38 +229,23 @@
 //           <div className="space-y-4 sm:space-y-6 lg:space-y-8">
 //             {filteredComplaints.map((complaint) => (
 //               <div
-//                 key={complaint.reference_id || complaint.id || Math.random()}
+//                 key={complaint.reference_id || complaint.id}
 //                 className="rounded-2xl sm:rounded-3xl border transition-all duration-300 overflow-hidden hover:shadow-lg group cursor-pointer"
-//                 style={{ 
-//                   backgroundColor: 'var(--bg-primary)', 
-//                   borderColor: 'var(--border)',
-//                 }}
-//                 onMouseEnter={(e) => {
-//                   e.currentTarget.style.borderColor = 'var(--primary-600)';
-//                   e.currentTarget.style.boxShadow = '0 20px 40px rgba(2, 132, 199, 0.1)';
-//                 }}
-//                 onMouseLeave={(e) => {
-//                   e.currentTarget.style.borderColor = 'var(--border)';
-//                   e.currentTarget.style.boxShadow = 'none';
-//                 }}
+//                 style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border)' }}
 //               >
 //                 <div className="p-5 sm:p-7 lg:p-10">
 //                   <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8">
-                    
-//                     {/* Main Content */}
 //                     <div className="lg:col-span-3">
-//                       {/* Title & Status */}
 //                       <div className="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4 mb-6">
 //                         <h2 className="text-xl sm:text-2xl lg:text-2xl font-semibold flex-1" style={{ color: 'var(--text-h)' }}>
 //                           {complaint.title}
 //                         </h2>
-//                         <span className={`inline-flex items-center gap-2 px-4 sm:px-5 py-2 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-semibold whitespace-nowrap ${getStatusBadge(complaint.status)}`}>
-//                           {getStatusIcon(complaint.status)}
-//                           <span>{complaint.status || 'Pending'}</span>
+//                         <span className={`inline-flex items-center gap-2 px-4 sm:px-5 py-2 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-semibold whitespace-nowrap ${getStatusBadge(complaint.status || complaint.complaint_status)}`}>
+//                           {getStatusIcon(complaint.status || complaint.complaint_status)}
+//                           <span>{complaint.status || complaint.complaint_status || 'Pending'}</span>
 //                         </span>
 //                       </div>
 
-//                       {/* Metadata */}
 //                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6 text-sm sm:text-base">
 //                         <div className="flex items-center gap-3">
 //                           <FileText size={18} style={{ color: 'var(--text-tertiary)' }} className="flex-shrink-0" />
@@ -292,9 +272,7 @@
 //                           <div>
 //                             <p className="text-xs font-medium" style={{ color: 'var(--text-tertiary)' }}>Submitted</p>
 //                             <p className="font-semibold" style={{ color: 'var(--text-primary)' }}>
-//                               {complaint.created_at 
-//                                 ? new Date(complaint.created_at).toLocaleDateString('en-NP', { year: 'numeric', month: 'short', day: 'numeric' }) 
-//                                 : 'N/A'}
+//                               {complaint.created_at ? new Date(complaint.created_at).toLocaleDateString() : 'N/A'}
 //                             </p>
 //                           </div>
 //                         </div>
@@ -310,33 +288,23 @@
 //                         </div>
 //                       </div>
 
-//                       {/* Description */}
 //                       {complaint.description && (
 //                         <div className="text-sm sm:text-base leading-relaxed p-4 rounded-xl" 
 //                              style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', borderLeft: '4px solid var(--primary-600)' }}>
-//                           {complaint.description.substring(0, 200)}
-//                           {complaint.description.length > 200 ? '...' : ''}
+//                           {complaint.description.substring(0, 200)}{complaint.description.length > 200 ? '...' : ''}
 //                         </div>
 //                       )}
 //                     </div>
 
-//                     {/* Action Button */}
 //                     <div className="lg:col-span-1 flex flex-col items-stretch lg:items-end justify-center pt-4 lg:pt-0">
 //                       <button
-//                         onClick={() => {
-//                           const id = complaint.reference_id || complaint.id;
-//                           alert(`Opening details for Complaint ID: ${id}`);
-//                           // TODO: Use react-router navigate(`/complaints/${id}`)
-//                         }}
+//                         // onClick={() => alert(`Opening details for: ${complaint.title}`)}
+//                           onClick={() => navigate(`/complaints/${complaint.reference_id}`)} //complaint details
 //                         className="flex items-center justify-center lg:justify-end gap-2 px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-medium transition-all active:scale-95 text-sm sm:text-base"
-//                         style={{ 
-//                           backgroundColor: 'var(--primary-600)', 
-//                           color: 'white'
-//                         }}
+//                         style={{ backgroundColor: 'var(--primary-600)', color: 'white' }}
 //                       >
 //                         <Eye size={18} />
-//                         <span className="hidden sm:inline">View Details</span>
-//                         <span className="sm:hidden">View</span>
+//                         View Details
 //                         <ArrowRight size={16} />
 //                       </button>
 //                     </div>
@@ -358,7 +326,7 @@
 //             <p className="text-base sm:text-lg" style={{ color: 'var(--text-secondary)' }}>
 //               {search || statusFilter !== 'All' 
 //                 ? 'Try adjusting your search filters.' 
-//                 : "You haven't submitted any complaints yet. When you do, they'll appear here."}
+//                 : "You haven't submitted any complaints yet."}
 //             </p>
 //           </div>
 //         )}
@@ -375,12 +343,8 @@
 
 
 
-
-
-
-
-
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Search,
   Eye,
@@ -398,6 +362,7 @@ import {
 import { getMyComplaints } from '../api/complaintApi';
 
 export default function MyComplaints() {
+  const navigate = useNavigate();
   const [complaints, setComplaints] = useState([]);
   const [filteredComplaints, setFilteredComplaints] = useState([]);
   const [search, setSearch] = useState('');
@@ -441,10 +406,11 @@ export default function MyComplaints() {
          (c.reference_id?.toLowerCase().includes(searchTerm)) ||
          (c.category?.name?.toLowerCase().includes(searchTerm)));
 
+      const currentStatus = getNormalizedStatus(c);
+
       const matchesStatus = 
         statusFilter === 'All' || 
-        (c.status && c.status.toLowerCase() === statusFilter.toLowerCase()) ||
-        (c.complaint_status && c.complaint_status.toLowerCase() === statusFilter.toLowerCase());
+        currentStatus.toLowerCase() === statusFilter.toLowerCase();
 
       return matchesSearch && matchesStatus;
     });
@@ -452,8 +418,14 @@ export default function MyComplaints() {
     setFilteredComplaints(filtered);
   }, [search, statusFilter, complaints]);
 
+  // Dynamic Status Helper
+  const getNormalizedStatus = (complaint) => {
+    if (!complaint) return 'Pending';
+    return (complaint.status || complaint.complaint_status || 'Pending').trim();
+  };
+
   const getStatusBadge = (status) => {
-    const s = (status || '').toLowerCase();
+    const s = status.toLowerCase();
     if (s.includes('pending')) return 'bg-amber-100 text-amber-700 border border-amber-200';
     if (s.includes('approved')) return 'bg-blue-100 text-blue-700 border border-blue-200';
     if (s.includes('progress') || s.includes('processing')) return 'bg-orange-100 text-orange-700 border border-orange-200';
@@ -463,7 +435,7 @@ export default function MyComplaints() {
   };
 
   const getStatusIcon = (status) => {
-    const s = (status || '').toLowerCase();
+    const s = status.toLowerCase();
     if (s.includes('pending')) return <Clock size={18} />;
     if (s.includes('resolved')) return <CheckCircle size={18} />;
     if (s.includes('rejected')) return <XCircle size={18} />;
@@ -479,12 +451,21 @@ export default function MyComplaints() {
 
   const getComplaintStats = () => {
     const total = complaints.length;
-    const pending = complaints.filter(c => (c.status || c.complaint_status || '').toLowerCase().includes('pending')).length;
-    const resolved = complaints.filter(c => (c.status || c.complaint_status || '').toLowerCase().includes('resolved')).length;
+    const pending = complaints.filter(c => getNormalizedStatus(c).toLowerCase().includes('pending')).length;
+    const resolved = complaints.filter(c => getNormalizedStatus(c).toLowerCase().includes('resolved')).length;
     return { total, pending, resolved };
   };
 
   const stats = getComplaintStats();
+
+  const handleViewDetails = (complaint) => {
+    const status = getNormalizedStatus(complaint).toLowerCase();
+    if (status === 'rejected') {
+      navigate(`/complaints/${complaint.reference_id}`);
+    } else {
+      alert("You can only edit complaints that are REJECTED by admin.");
+    }
+  };
 
   if (loading) {
     return (
@@ -518,7 +499,7 @@ export default function MyComplaints() {
   return (
     <div className="min-h-screen px-4 sm:px-6 lg:px-10 py-8 sm:py-12 lg:py-16" style={{ backgroundColor: 'var(--bg-secondary)' }}>
       <div className="max-w-[1440px] mx-auto">        
-        {/* Header Section */}
+        {/* Header + Stats */}
         <div className="mb-8 sm:mb-10 lg:mb-12">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
             <div>
@@ -526,7 +507,7 @@ export default function MyComplaints() {
                 My Complaints
               </h1>
               <p className="text-base sm:text-lg max-w-2xl" style={{ color: 'var(--text-secondary)' }}>
-                Track your complaints from submission to resolution. Monitor status updates in real-time.
+                Track your complaints from submission to resolution.
               </p>
             </div>
           </div>
@@ -598,101 +579,99 @@ export default function MyComplaints() {
               </select>
             </div>
           </div>
-
-          {filteredComplaints.length > 0 && (
-            <p className="text-sm mt-4" style={{ color: 'var(--text-tertiary)' }}>
-              Showing <span className="font-semibold" style={{ color: 'var(--text-secondary)' }}>{filteredComplaints.length}</span> complaint{filteredComplaints.length !== 1 ? 's' : ''}
-            </p>
-          )}
         </div>
 
         {/* Complaints List */}
         {filteredComplaints.length > 0 ? (
           <div className="space-y-4 sm:space-y-6 lg:space-y-8">
-            {filteredComplaints.map((complaint) => (
-              <div
-                key={complaint.reference_id || complaint.id}
-                className="rounded-2xl sm:rounded-3xl border transition-all duration-300 overflow-hidden hover:shadow-lg group cursor-pointer"
-                style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border)' }}
-              >
-                <div className="p-5 sm:p-7 lg:p-10">
-                  <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8">
-                    <div className="lg:col-span-3">
-                      <div className="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4 mb-6">
-                        <h2 className="text-xl sm:text-2xl lg:text-2xl font-semibold flex-1" style={{ color: 'var(--text-h)' }}>
-                          {complaint.title}
-                        </h2>
-                        <span className={`inline-flex items-center gap-2 px-4 sm:px-5 py-2 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-semibold whitespace-nowrap ${getStatusBadge(complaint.status || complaint.complaint_status)}`}>
-                          {getStatusIcon(complaint.status || complaint.complaint_status)}
-                          <span>{complaint.status || complaint.complaint_status || 'Pending'}</span>
-                        </span>
+            {filteredComplaints.map((complaint) => {
+              const currentStatus = getNormalizedStatus(complaint);
+              return (
+                <div
+                  key={complaint.reference_id || complaint.id}
+                  className="rounded-2xl sm:rounded-3xl border transition-all duration-300 overflow-hidden hover:shadow-lg group cursor-pointer"
+                  style={{ backgroundColor: 'var(--bg-primary)', borderColor: 'var(--border)' }}
+                >
+                  <div className="p-5 sm:p-7 lg:p-10">
+                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8">
+                      <div className="lg:col-span-3">
+                        <div className="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4 mb-6">
+                          <h2 className="text-xl sm:text-2xl lg:text-2xl font-semibold flex-1" style={{ color: 'var(--text-h)' }}>
+                            {complaint.title}
+                          </h2>
+                          <span className={`inline-flex items-center gap-2 px-4 sm:px-5 py-2 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-semibold whitespace-nowrap ${getStatusBadge(currentStatus)}`}>
+                            {getStatusIcon(currentStatus)}
+                            <span>{currentStatus}</span>
+                          </span>
+                        </div>
+
+                        {/* Rest of your card content remains the same */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6 text-sm sm:text-base">
+                          <div className="flex items-center gap-3">
+                            <FileText size={18} style={{ color: 'var(--text-tertiary)' }} className="flex-shrink-0" />
+                            <div>
+                              <p className="text-xs font-medium" style={{ color: 'var(--text-tertiary)' }}>Reference ID</p>
+                              <p className="font-semibold" style={{ color: 'var(--text-primary)' }}>
+                                {complaint.reference_id || 'N/A'}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-3">
+                            <MapPin size={18} style={{ color: 'var(--text-tertiary)' }} className="flex-shrink-0" />
+                            <div>
+                              <p className="text-xs font-medium" style={{ color: 'var(--text-tertiary)' }}>Category</p>
+                              <p className="font-semibold capitalize" style={{ color: 'var(--text-primary)' }}>
+                                {complaint.category?.name || complaint.category || 'General'}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-3">
+                            <Calendar size={18} style={{ color: 'var(--text-tertiary)' }} className="flex-shrink-0" />
+                            <div>
+                              <p className="text-xs font-medium" style={{ color: 'var(--text-tertiary)' }}>Submitted</p>
+                              <p className="font-semibold" style={{ color: 'var(--text-primary)' }}>
+                                {complaint.created_at ? new Date(complaint.created_at).toLocaleDateString() : 'N/A'}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-3">
+                            <AlertTriangle size={18} style={{ color: 'var(--text-tertiary)' }} className="flex-shrink-0" />
+                            <div>
+                              <p className="text-xs font-medium" style={{ color: 'var(--text-tertiary)' }}>Priority</p>
+                              <p className={`capitalize px-3 py-1 rounded-lg text-xs font-semibold w-fit ${getPriorityColor(complaint.priority)}`}>
+                                {complaint.priority || 'Medium'}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {complaint.description && (
+                          <div className="text-sm sm:text-base leading-relaxed p-4 rounded-xl" 
+                               style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', borderLeft: '4px solid var(--primary-600)' }}>
+                            {complaint.description.substring(0, 200)}{complaint.description.length > 200 ? '...' : ''}
+                          </div>
+                        )}
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6 text-sm sm:text-base">
-                        <div className="flex items-center gap-3">
-                          <FileText size={18} style={{ color: 'var(--text-tertiary)' }} className="flex-shrink-0" />
-                          <div>
-                            <p className="text-xs font-medium" style={{ color: 'var(--text-tertiary)' }}>Reference ID</p>
-                            <p className="font-semibold" style={{ color: 'var(--text-primary)' }}>
-                              {complaint.reference_id || 'N/A'}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                          <MapPin size={18} style={{ color: 'var(--text-tertiary)' }} className="flex-shrink-0" />
-                          <div>
-                            <p className="text-xs font-medium" style={{ color: 'var(--text-tertiary)' }}>Category</p>
-                            <p className="font-semibold capitalize" style={{ color: 'var(--text-primary)' }}>
-                              {complaint.category?.name || complaint.category || 'General'}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                          <Calendar size={18} style={{ color: 'var(--text-tertiary)' }} className="flex-shrink-0" />
-                          <div>
-                            <p className="text-xs font-medium" style={{ color: 'var(--text-tertiary)' }}>Submitted</p>
-                            <p className="font-semibold" style={{ color: 'var(--text-primary)' }}>
-                              {complaint.created_at ? new Date(complaint.created_at).toLocaleDateString() : 'N/A'}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                          <AlertTriangle size={18} style={{ color: 'var(--text-tertiary)' }} className="flex-shrink-0" />
-                          <div>
-                            <p className="text-xs font-medium" style={{ color: 'var(--text-tertiary)' }}>Priority</p>
-                            <p className={`capitalize px-3 py-1 rounded-lg text-xs font-semibold w-fit ${getPriorityColor(complaint.priority)}`}>
-                              {complaint.priority || 'Medium'}
-                            </p>
-                          </div>
-                        </div>
+                      <div className="lg:col-span-1 flex flex-col items-stretch lg:items-end justify-center pt-4 lg:pt-0">
+                        <button
+                          onClick={() => handleViewDetails(complaint)}
+                          className="flex items-center justify-center lg:justify-end gap-2 px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-medium transition-all active:scale-95 text-sm sm:text-base"
+                          style={{ backgroundColor: 'var(--primary-600)', color: 'white' }}
+                        >
+                          <Eye size={18} />
+                          View Details
+                          <ArrowRight size={16} />
+                        </button>
                       </div>
-
-                      {complaint.description && (
-                        <div className="text-sm sm:text-base leading-relaxed p-4 rounded-xl" 
-                             style={{ backgroundColor: 'var(--bg-secondary)', color: 'var(--text-secondary)', borderLeft: '4px solid var(--primary-600)' }}>
-                          {complaint.description.substring(0, 200)}{complaint.description.length > 200 ? '...' : ''}
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="lg:col-span-1 flex flex-col items-stretch lg:items-end justify-center pt-4 lg:pt-0">
-                      <button
-                        onClick={() => alert(`Opening details for: ${complaint.title}`)}
-                        className="flex items-center justify-center lg:justify-end gap-2 px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-medium transition-all active:scale-95 text-sm sm:text-base"
-                        style={{ backgroundColor: 'var(--primary-600)', color: 'white' }}
-                      >
-                        <Eye size={18} />
-                        View Details
-                        <ArrowRight size={16} />
-                      </button>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <div className="rounded-2xl sm:rounded-3xl border p-8 sm:p-12 lg:p-16 text-center" 

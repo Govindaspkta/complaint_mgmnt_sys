@@ -16,6 +16,7 @@ import CategoryManagement from './pages/Admin/CategoryManagement';
 import ComplaintVerification from './pages/Admin/ComplaintVerification';
 
 import ProtectedRoute from './components/ProtectedRoute';
+import ComplaintDetail from './pages/ComplaintDetails';
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
           <Route path="/complaints" element={<ProtectedRoute><MyComplaints /></ProtectedRoute>} />
           <Route path="/my-complaints" element={<ProtectedRoute><MyComplaints /></ProtectedRoute>} />
           <Route path="/profile-completion" element={<ProtectedRoute><ProfileCompletion /></ProtectedRoute>} />
+          <Route path="/complaints/:reference_id" element={<ProtectedRoute><ComplaintDetail /></ProtectedRoute>} />
           
           {/* New Route */}
           <Route path="/all-approved-complaints" element={<ProtectedRoute><AllApprovedComplaints /></ProtectedRoute>} />
