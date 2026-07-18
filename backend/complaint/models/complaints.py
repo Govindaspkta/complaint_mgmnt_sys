@@ -20,18 +20,15 @@ class AetherixComplaints(BaseModel):
         'authx.AetherixUsers',
         on_delete = models.PROTECT,
         related_name = "complaints"
-
     )
     category = models.ForeignKey(
         'complaint.ComplaintCategory',
         on_delete=models.PROTECT,
         related_name="complaints",
     )
-
     title = models.CharField(
         max_length=100,
     )
-
     province = models.CharField(
         max_length=150
     )
@@ -44,7 +41,6 @@ class AetherixComplaints(BaseModel):
     ward = models.CharField(
         max_length=150
     )
-
     description = models.TextField(max_length=500)
     is_verified = models.BooleanField(default=False)
     image = models.ImageField(

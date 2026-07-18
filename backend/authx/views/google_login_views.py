@@ -34,7 +34,6 @@ class GoogleLoginAPIView(PublicApiView):
                 requests.Request(),
                 GOOGLE_CLIENT_ID
             )
-            
         except ValueError:
             return self.error( 
                 message="Invalid Google Token",
@@ -43,7 +42,6 @@ class GoogleLoginAPIView(PublicApiView):
         email = idinfo.get("email")
         name = idinfo.get("name")
 
-
         user, created = AetherixUsers.objects.get_or_create(
             email=email,
             defaults={
@@ -51,9 +49,7 @@ class GoogleLoginAPIView(PublicApiView):
                 "username":name,
                 }
         )
-       
         refresh = RefreshToken.for_user(user)
-
         response_data = { 
             "access":str(refresh.access_token),
             "refresh": str(refresh),

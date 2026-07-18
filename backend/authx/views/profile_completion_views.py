@@ -13,7 +13,6 @@ class ProfileCompletion(BaseApiView):
                 message="Profile is already verified. Cannot Update.",
                 status_code=403
             )
-
         # Serializer handles both Create and Update
         serializer = ProfileCompletionSerializer(
             profile,   # None if new user
@@ -21,10 +20,8 @@ class ProfileCompletion(BaseApiView):
             partial=True,
             context={'request': request}
         )
-
         if serializer.is_valid():
             updated_profile = serializer.save()
-
             # FORCE PENDING - This must run every time user submits/resubmits
 
             updated_profile.verification_status = ProfileVerificationStatus.PENDING
@@ -34,12 +31,10 @@ class ProfileCompletion(BaseApiView):
                 updated_profile,
                 context={"request": request}
             )
-
             return self.success(
                 "Profile submitted successfully. Status is now PENDING.",
                 data=refreshed_serializer.data
             )
-
         return self.internal_server_error("Validation Error.", errors=serializer.errors)
     
 class ProfileCompletionDetailApiView(BaseApiView):
