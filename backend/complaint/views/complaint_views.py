@@ -376,3 +376,39 @@ class ComplaintsAdminUpdateApiView(SuperAdminBaseApiView):
             )
 
         return self.error("Validation failed", errors=serializer.errors, status_code=400)
+      def patch(self, request, reference_id):
+        try:
+            complaint = AetherixComplaints.objects.get(
+                reference_id=reference_id,
+                is_active=True,
+                is_deleted=False
+            )
+        except AetherixComplaints.DoesNotExist:
+            return self.error("Complaint not found.", status_code=404)
+
+        serializer = ComplaintSerializer(
+            complaint, 
+            data=request.data, 
+            partial=True,
+            context={'request': request}
+        )
+
+        if serializer.is_valid():
+            updated_complaint = serializer.save()
+
+            new_status = request.data.get('status')
+            if new_status:
+                status_upper = new_status.upper()
+                if status_upper in [choice[0] for choice in ComplaintStatusChoices.choices]:
+                    updated_complaint.status = status_upper
+                    updated_complaint.save(update_fields=['status'])
+
+            refreshed_serializer = ComplaintReadOnlySerializer(updated_complaint, context={'request': request})
+
+            return self.success(
+                message=f"Complaint status updated to {updated_complaint.status}",
+                data=refreshed_serializer.data,
+                status_code=200
+            )
+
+        return self.error("Validation failed", errors=serializer.errors, status_code=400)
