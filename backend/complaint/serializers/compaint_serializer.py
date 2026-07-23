@@ -76,3 +76,14 @@ class ComplaintReadOnlySerializer(serializers.Serializer):
     status = serializers.CharField(read_only=True)           # ← Changed from complaint_status
     rejection_reason = serializers.CharField(read_only=True)
     created_at = serializers.DateTimeField(read_only=True)
+
+    #upvote fields
+
+    upvotes_count = serializers.IntegerField(read_only=True)
+    has_upvoted = serializers.SerializerMethodField()
+
+    def get_has_upvoted(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.upvotes.filter(user=request.user)
+        return False

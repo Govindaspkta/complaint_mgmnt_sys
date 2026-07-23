@@ -21,6 +21,8 @@ class AetherixComplaints(BaseModel):
         on_delete = models.PROTECT,
         related_name = "complaints"
     )
+    upvotes_count = models.PositiveIntegerField(default=0)
+
     category = models.ForeignKey(
         'complaint.ComplaintCategory',
         on_delete=models.PROTECT,
