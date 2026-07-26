@@ -1,5 +1,4 @@
-
-   // src/api/complaintApi.js
+// src/api/complaintApi.js
 import api from "./axios";
 
 // ================= USER / PUBLIC APIs =================
@@ -25,7 +24,6 @@ export const deleteComplaint = async (reference_id) => {
   return response;
 };
 
-// ✅ NEW: User Update (PUT) - For rejected complaints resubmission
 export const updateComplaint = async (reference_id, complaintData) => {
   const response = await api.put(`/complaints/${reference_id}/`, complaintData, {
     headers: { "Content-Type": "multipart/form-data" },
@@ -39,7 +37,6 @@ export const getAllComplaints = async () => {
   return response;
 };
 
-// Admin Approval / Rejection
 export const updateComplaintAdmin = async (reference_id, data) => {
   const response = await api.patch(`/complaints/admin/${reference_id}/`, data);
   return response;
@@ -51,21 +48,19 @@ export const toggleUpvote = async (reference_id) => {
   return response;
 };
 
-// Optional: Future forwarding endpoint
 export const forwardToGovt = async (reference_id, category) => {
   const response = await api.post(`/complaints/${reference_id}/forward/`, { category });
   return response;
 };
 
-// Default export (keeping your existing structure)
 export default {
   createComplaint,
   getMyComplaints,
   getComplaintDetail,
   deleteComplaint,
-  updateComplaint,          
+  updateComplaint,
   getAllComplaints,
-  updateComplaintAdmin,   
+  updateComplaintAdmin,
   forwardToGovt,
-  toggleUpvote,          
+  toggleUpvote,
 };
