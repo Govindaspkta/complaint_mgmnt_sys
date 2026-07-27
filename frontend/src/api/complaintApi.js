@@ -37,6 +37,12 @@ export const getAllComplaints = async () => {
   return response;
 };
 
+// ✅ Admin: Get ALL complaints (Pending + Rejected + Approved)
+export const getAdminComplaints = async () => {
+  const response = await api.get("/complaints/admin/");
+  return response;
+};
+
 export const updateComplaintAdmin = async (reference_id, data) => {
   const response = await api.patch(`/complaints/admin/${reference_id}/`, data);
   return response;
