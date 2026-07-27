@@ -73,7 +73,7 @@ class ComplaintReadOnlySerializer(serializers.Serializer):
     image = serializers.ImageField(read_only=True)
     priority = serializers.CharField(read_only=True)
     
-    status = serializers.CharField(read_only=True)           # ← Changed from complaint_status
+    status = serializers.CharField(read_only=True)
     rejection_reason = serializers.CharField(read_only=True)
     created_at = serializers.DateTimeField(read_only=True)
 
@@ -85,5 +85,5 @@ class ComplaintReadOnlySerializer(serializers.Serializer):
     def get_has_upvoted(self, obj):
         request = self.context.get('request')
         if request and request.user.is_authenticated:
-            return obj.upvotes.filter(user=request.user)
+            return obj.upvotes.filter(user=request.user).exists()
         return False

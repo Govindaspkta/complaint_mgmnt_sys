@@ -241,7 +241,7 @@ class ComplaintListCreateApiViews(BaseApiView):
         try:
             complaints = AetherixComplaints.objects.filter(
                 is_active=True,
-                user=request.user
+                # user=request.user
             )
             return paginated_response(
                 request=request,
