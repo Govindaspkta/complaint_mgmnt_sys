@@ -12,3 +12,12 @@ class IsSuperUser(BasePermission):
         except Exception as exe:
             logger.error(str(exe), exc_info=True)
             return False
+
+class isAdminRole(BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and request.user.role == "ADMIN"
+
+
+class isUserRole(BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and request.user.role == "USER"

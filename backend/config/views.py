@@ -3,7 +3,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from config.permission import IsSuperUser
+from config.permission import IsSuperUser, isAdminRole, isUserRole
 
 logger = logging.getLogger("django") 
 
@@ -52,5 +52,8 @@ class SuperAdminBaseApiView(APIView, APIResponse):
      authentication_classes =[JWTAuthentication]
      permission_classes = [IsSuperUser]
 
+class AdminBaseApiView(APIView, APIResponse):
+     authentication_classes= [JWTAuthentication]
+     permission_classes = [IsAuthenticated, isAdminRole]
 
 

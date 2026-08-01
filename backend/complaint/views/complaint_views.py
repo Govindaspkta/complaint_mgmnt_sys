@@ -10,28 +10,6 @@ from authx.models import AetherixProfile, ProfileVerificationStatus
 
 class ComplaintListCreateApiViews(BaseApiView):
 
-    # def get(self, request):
-    #     try:
-    #         complaints = AetherixComplaints.objects.filter(
-    #             is_active=True,
-    #             user=request.user
-    #         )
-    #         page = request.GET.get("page", 1)
-    #         cache_key = f"complaints_page_{page}"
-    #         cached = cache.get(cache_key)
-    #         if cached:
-    #             return Response(cached)
-
-    #         response = paginated_response(
-    #             request=request,
-    #             queryset=complaints,
-    #             serializer_class=ComplaintReadOnlySerializer,
-    #             message="Success"
-    #         )
-    #         cache.set(cache_key, response.data, 600)
-    #         return response
-    #     except Exception as e:
-    #         return self.internal_server_error(str(e))
     def get(self, request):
         try:
             complaints = AetherixComplaints.objects.filter(
