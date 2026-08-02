@@ -5,7 +5,7 @@ from config.views import BaseApiView, SuperAdminBaseApiView
 from complaint.models import AetherixComplaints, ComplaintStatusChoices, ComplaintPriorityChoices
 from config.utils import paginated_response
 from complaint.serializers import ComplaintSerializer, ComplaintReadOnlySerializer
-from authx.models import AetherixProfile, ProfileVerificationStatus
+from authx.models import AetherixProfile, ProfileVerificationStatus, RoleChoices
 
 
 class ComplaintListCreateApiViews(BaseApiView):
@@ -14,8 +14,7 @@ class ComplaintListCreateApiViews(BaseApiView):
         try:
             complaints = AetherixComplaints.objects.filter(
                 is_active=True,
-                # user=request.user
-            )
+            ).order_by('-priority_score')
             return paginated_response(
                 request=request,
                 queryset=complaints,
@@ -115,6 +114,9 @@ class ComplaintsAdminUpdateApiView(SuperAdminBaseApiView):
 
     def patch(self, request, reference_id):
         try:
+            user= request.user
+            if not (user.roles == RoleChoices.ADMIN or user.is_superuser):
+                return self.error("Permission Denied.",403)
             complaint = AetherixComplaints.objects.get(
                 reference_id=reference_id,
                 is_active=True,
@@ -122,7 +124,7 @@ class ComplaintsAdminUpdateApiView(SuperAdminBaseApiView):
             )
         except AetherixComplaints.DoesNotExist:
             return self.error("Complaint not found.", status_code=404)
-
+ 
         serializer = ComplaintSerializer(
             complaint, 
             data=request.data, 

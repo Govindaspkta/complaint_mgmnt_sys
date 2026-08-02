@@ -2,14 +2,18 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 import uuid
 
+
+
+class RoleChoices(models.TextChoices):
+    USER ="USER", "User",
+    ADMIN = "ADMIN", "Admin"
+
 class AetherixUsers(AbstractUser):
-    ROLE_CHOICES = (
-        ("USER", "User"),
-        ("ADMIN", "admin")
-    )
+   
     roles = models.CharField(
-        choices=ROLE_CHOICES,
-        default= "User"
+        choices=RoleChoices.choices,
+        default= "User",
+        max_length=10
     )
 
     reference_id = models.UUIDField(

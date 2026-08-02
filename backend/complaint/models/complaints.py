@@ -61,6 +61,10 @@ class AetherixComplaints(BaseModel):
         choices=ComplaintPriorityChoices.choices,
         default="MEDIUM"
     )
+    priority_score = models.FloatField(
+    default=0.0,
+    help_text="Calculated priority score based on severity, upvotes and days pending"
+)
 
     class Meta:
         db_table = "aetherix_complaints"
