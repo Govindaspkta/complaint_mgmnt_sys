@@ -1,5 +1,8 @@
 from datetime import datetime
 from django.utils import timezone
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import LabelEncoder
+import numpy as np
 
 
 # =====================================================
@@ -42,15 +45,6 @@ def calculate_priority_score(complaint):
 
     return round(priority_score, 2)
 
-
-# =====================================================
-# 2. AI DUPLICATE DETECTION (Coming Soon)
-# =====================================================
-def detect_duplicate_complaint(title, description, existing_complaints):
-    """
-    Will be implemented later using AI Embeddings
-    """
-    pass
 
 
 # =====================================================
@@ -137,3 +131,11 @@ def cluster_complaints(complaints, n_clusters=5):
         )
 
     return clusters
+
+
+
+
+
+
+
+
