@@ -17,6 +17,7 @@ import ComplaintVerification from './pages/Admin/ComplaintVerification';
 
 import ProtectedRoute from './components/ProtectedRoute';
 import ComplaintDetail from './pages/ComplaintDetails';
+import HotspotComplaints from './pages/HotspotComplaint';
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
           <Route path="/my-complaints" element={<ProtectedRoute><MyComplaints /></ProtectedRoute>} />
           <Route path="/profile-completion" element={<ProtectedRoute><ProfileCompletion /></ProtectedRoute>} />
           <Route path="/complaints/:reference_id" element={<ProtectedRoute><ComplaintDetail /></ProtectedRoute>} />
+          <Route path="/hotspots" element={<ProtectedRoute><HotspotComplaints /></ProtectedRoute>} />
           
           {/* New Route */}
           <Route path="/all-approved-complaints" element={<ProtectedRoute><AllApprovedComplaints /></ProtectedRoute>} />

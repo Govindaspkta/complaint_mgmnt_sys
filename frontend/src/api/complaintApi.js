@@ -59,6 +59,12 @@ export const forwardToGovt = async (reference_id, category) => {
   return response;
 };
 
+// ================= CLUSTER / HOTSPOT API =================
+export const getComplaintClusters = async () => {
+  const response = await api.get("/complaints/clusters/");
+  return response;
+};
+
 export default {
   createComplaint,
   getMyComplaints,
@@ -69,4 +75,5 @@ export default {
   updateComplaintAdmin,
   forwardToGovt,
   toggleUpvote,
+  getComplaintClusters,  
 };
