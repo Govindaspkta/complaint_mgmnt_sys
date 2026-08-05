@@ -1,15 +1,15 @@
 from rest_framework import status
-from config.views import BaseApiView
+from config.views import PublicApiView
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken
 from authx.models import AetherixUsers
 
-class RefreshTokenApiView(BaseApiView):
+class RefreshTokenApiView(PublicApiView):
 
     def post(self, request):
         refresh_token = request.COOKIES.get('refresh_token')
-        print(request.COOKIES)
+        # print(request.COOKIES)
         if not refresh_token:
             return self.error(
                 message="Refresh token missing.Please Try again.",
@@ -20,6 +20,11 @@ class RefreshTokenApiView(BaseApiView):
             user = AetherixUsers.objects.get(
                 id=old_refresh["user_id"]
             )
+            if not user:
+                return self.error(
+                    message="User not found.",
+                    status_code=status.HTTP_404_NOT_FOUND
+                )
             old_refresh.blacklist()
             new_refresh = RefreshToken.for_user(user)
             access_token = str(new_refresh.access_token)
@@ -39,6 +44,7 @@ class RefreshTokenApiView(BaseApiView):
                 httponly=True, #only ofr dev
                 secure=False,
                 samesite='Lax',
+                path='/',
                 max_age=24*60*60
             )
             return response
