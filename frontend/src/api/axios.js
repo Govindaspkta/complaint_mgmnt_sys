@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://127.0.0.1:8000",
+  baseURL: "",
   withCredentials: true,
 });
 
@@ -32,7 +32,9 @@ api.interceptors.response.use(
 
       try {
         const refreshResponse = await axios.post(
-          "http://127.0.0.1:8000/authx/refresh/",
+          // "http://127.0.0.1:8000/authx/refresh/",
+            "/authx/refresh/",
+
           {},
           { withCredentials: true }
         );
