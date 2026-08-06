@@ -3,7 +3,7 @@ from config.views import PublicApiView
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken
-from authx.models import AetherixUsers
+from authx.models import AetherixUsers, UserSession
 
 class RefreshTokenApiView(PublicApiView):
 
@@ -17,16 +17,24 @@ class RefreshTokenApiView(PublicApiView):
             )
         try:
             old_refresh = RefreshToken(refresh_token)
-            user = AetherixUsers.objects.get(
-                id=old_refresh["user_id"]
-            )
-            if not user:
+            session = UserSession.objects.filter(
+                user_id =old_refresh["user_id"],
+                refresh_token=refresh_token,
+                is_active=True,
+            ).first()
+            # user = AetherixUsers.objects.get(
+            #     id=old_refresh["user_id"]
+            # )
+            if not session:
                 return self.error(
-                    message="User not found.",
-                    status_code=status.HTTP_404_NOT_FOUND
+                    message="Session Expired.",
+                    status_code=status.HTTP_401_UNAUTHORIZED
                 )
             old_refresh.blacklist()
-            new_refresh = RefreshToken.for_user(user)
+            new_refresh = RefreshToken.for_user(session.user)
+
+            session.refresh_token =str(new_refresh)
+            session.save()
             access_token = str(new_refresh.access_token)
             
             response_data ={
