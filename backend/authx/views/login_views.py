@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate
 from config.views import PublicApiView
 # from config.standard_serializer import StandardResponseSerializer
 from authx.serializers import LoginSerializer
+from authx.models import UserSession
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -31,6 +32,13 @@ class LoginAPIView(PublicApiView):
                 status_code=status.HTTP_401_UNAUTHORIZED
             )
         refresh = RefreshToken.for_user(user)
+        
+        UserSession.objects.create(
+            user=user,
+            refresh_token=str(refresh),
+            ip_address =request.META.get('REMOTE_ADDR'),
+            user_agent=request.META.get('HTTP_USER_AGENT')
+        )
         response_data ={
             "access" : str(refresh.access_token),
             "user":{

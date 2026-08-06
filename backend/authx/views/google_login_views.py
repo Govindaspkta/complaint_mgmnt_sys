@@ -50,6 +50,12 @@ class GoogleLoginAPIView(PublicApiView):
                 }
         )
         refresh = RefreshToken.for_user(user)
+        UserSession.objects.create(
+                    user=user,
+                    refresh_token=str(refresh),
+                    ip_address =request.META.get('REMOTE_ADDR'),
+                    user_agent=request.META.get('HTTP_USER_AGENT')
+                )
         response_data = { 
             "access":str(refresh.access_token),
             "refresh": str(refresh),
