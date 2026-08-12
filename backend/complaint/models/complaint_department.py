@@ -2,7 +2,6 @@ from django.db import models
 from config.models import BaseModel
 
 
-
 class Department(BaseModel):
     name = models.CharField(max_length=100, unique=True)   # Electricity, Water...
     email = models.EmailField()

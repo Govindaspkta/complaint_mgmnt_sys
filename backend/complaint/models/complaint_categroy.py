@@ -13,6 +13,13 @@ class ComplaintCategory(BaseModel):
     )
 
     description = models.TextField()
+    department = models.ForeignKey(
+        'complaint.Department',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="categories"
+    )
 
     class Meta:
         db_table = "complaint_categories"
