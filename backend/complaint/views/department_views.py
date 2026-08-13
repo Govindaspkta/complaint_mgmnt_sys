@@ -42,6 +42,7 @@ class DepartmentListCreateApiView(BaseApiView):
 class DepartmentDetailApiView(BaseApiView):
 
     def get(self, request, reference_id):
+
         department = Department.objects.filter(
             is_active=True,
             is_deleted=False,
@@ -79,7 +80,7 @@ class DepartmentDetailApiView(BaseApiView):
             is_deleted=False,
         ).first()
         if not department:
-            self.error("Department Not Found", status_code=404)
+            return self.error("Department Not Found", status_code=404)
 
         department.is_deleted =True
         department.save()

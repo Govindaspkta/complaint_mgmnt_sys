@@ -19,7 +19,13 @@ class DepartmentSerializer(serializers.Serializer):
         }
     )
 
-    description = serializers.CharField()
+    description = serializers.CharField(required =False,allow_blank=True)
+    email = serializers.EmailField(
+        required=True,
+        error_messages ={
+            "required": "Email is required."
+        }
+    )
 
     def create(self, validated_data):
         return Department.objects.create(**validated_data)
