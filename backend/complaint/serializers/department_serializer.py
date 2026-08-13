@@ -1,7 +1,5 @@
 from rest_framework import serializers
-import os
-from complaint.models import AetherixComplaints, ComplaintCategory, ComplaintStatusChoices
-from complaint.serializers import CategorySerializer
+from complaint.models import Department 
 
 
 class DepartmentSerializer(serializers.Serializer):
@@ -11,20 +9,20 @@ class DepartmentSerializer(serializers.Serializer):
     name = serializers.CharField(
         required=True,
         error_messages={
-            "required":"Category Name is required."
+            "required":"Department Name is required."
         }
     )
     display_name = serializers.CharField(
     required=True,
         error_messages={
-            "required":"Category Name is required."
+            "required":"Department Name is required."
         }
     )
 
     description = serializers.CharField()
 
     def create(self, validated_data):
-        return ComplaintCategory.objects.create(**validated_data)
+        return Department.objects.create(**validated_data)
 
     def update(self,instance, validated_data):
         for field, value in validated_data.items():

@@ -1,3 +1,4 @@
 from .category_serializer import CategorySerializer
 from .compaint_serializer import ComplaintSerializer
 from .compaint_serializer import ComplaintReadOnlySerializer
+from .department_serializer import DepartmentSerializer
