@@ -18,6 +18,7 @@ import ComplaintVerification from './pages/Admin/ComplaintVerification';
 import ProtectedRoute from './components/ProtectedRoute';
 import ComplaintDetail from './pages/ComplaintDetails';
 import HotspotComplaints from './pages/HotspotComplaint';
+import DepartmentManagement from './pages/Admin/DepartmentManagement';
 
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
             <Route path="profile-verification" element={<ProfileVerification />} />
             <Route path="complaint-verification" element={<ComplaintVerification />} />
             <Route path="categories" element={<CategoryManagement />} />
+            <Route path="departments" element={<DepartmentManagement />} />  
             <Route path="complaints" element={<div className="p-10 text-xl">Complaints Management Coming Soon</div>} />
           </Route>
 

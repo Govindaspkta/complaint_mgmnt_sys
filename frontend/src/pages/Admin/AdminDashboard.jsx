@@ -4,6 +4,7 @@ import {
   Users,
   ShieldCheck,
   List,
+  Building2,     
   LogOut,
 } from "lucide-react";
 
@@ -12,64 +13,70 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
 
   // Current path for active link
-  const currentPath = location.pathname.split('/').pop() || '';
+  const currentPath = location.pathname.split("/").pop() || "";
 
   const handleLogout = () => {
     if (window.confirm("Are you sure you want to logout from Admin Panel?")) {
-      localStorage.removeItem("token");   // Clear authentication
+      localStorage.removeItem("token");
       navigate("/login");
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-
       {/* SIDEBAR */}
       <div className="w-72 bg-white border-r shadow-lg fixed h-screen overflow-y-auto flex flex-col">
-
         <div className="p-6 border-b">
           <h1 className="text-3xl font-bold text-primary-700">Aetherix</h1>
           <p className="text-sm text-gray-500">Admin Panel</p>
         </div>
 
         <nav className="p-4 space-y-1 flex-1">
-          <SidebarLink 
-            to="" 
-            icon={LayoutDashboard} 
-            label="Dashboard" 
-            isActive={currentPath === '' || currentPath === 'admin'} 
+          <SidebarLink
+            to=""
+            icon={LayoutDashboard}
+            label="Dashboard"
+            isActive={currentPath === "" || currentPath === "admin"}
           />
-          
-          <SidebarLink 
-            to="profile-verification" 
-            icon={Users} 
-            label="Profile Verification" 
-            isActive={currentPath === 'profile-verification'} 
+
+          <SidebarLink
+            to="profile-verification"
+            icon={Users}
+            label="Profile Verification"
+            isActive={currentPath === "profile-verification"}
           />
-          
-          <SidebarLink 
-            to="categories" 
-            icon={List} 
-            label="Complaint Categories" 
-            isActive={currentPath === 'categories'} 
+
+          {/* ===== NEW DEPARTMENT LINK ===== */}
+          <SidebarLink
+            to="departments"
+            icon={Building2}
+            label="Departments"
+            isActive={currentPath === "departments"}
           />
-          
-          <SidebarLink 
-            to="complaint-verification" 
-            icon={ShieldCheck} 
-            label="Complaint Verification" 
-            isActive={currentPath === 'complaint-verification'} 
+
+          <SidebarLink
+            to="categories"
+            icon={List}
+            label="Complaint Categories"
+            isActive={currentPath === "categories"}
           />
-          
-          <SidebarLink 
-            to="complaints" 
-            icon={ShieldCheck} 
-            label="All Complaints" 
-            isActive={currentPath === 'complaints'} 
+
+          <SidebarLink
+            to="complaint-verification"
+            icon={ShieldCheck}
+            label="Complaint Verification"
+            isActive={currentPath === "complaint-verification"}
+          />
+
+          <SidebarLink
+            to="complaints"
+            icon={ShieldCheck}
+            label="All Complaints"
+            isActive={currentPath === "complaints"}
           />
         </nav>
 
-        {/* Logout Button - Added at bottom */}
+        {/* Logout Button */}
         <div className="p-4 border-t mt-auto">
           <button
             onClick={handleLogout}
@@ -100,8 +107,8 @@ function SidebarLink({ to, icon: Icon, label, isActive }) {
     <Link
       to={to}
       className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-        isActive 
-          ? "bg-blue-50 text-blue-700 font-medium" 
+        isActive
+          ? "bg-blue-50 text-blue-700 font-medium"
           : "hover:bg-gray-100 text-gray-700"
       }`}
     >
