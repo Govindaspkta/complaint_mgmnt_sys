@@ -14,4 +14,12 @@ urlpatterns  = [
     path("admin/<reference_id>/", views.ComplaintsAdminUpdateApiView.as_view(), name ="category-by-admin"),
     path("<reference_id>/", views.ComplaintsDetailApiView.as_view(), name ="complaints-detail"),
     path("<str:reference_id>/upvote/", views.AetherixUpvote.as_view(), name='upvote-complaint'),
+
+    path("departments/", views.DepartmentListCreateApiView.as_view(), name="complaint-clusters"),
+    path("departments/<str:reference_id>", views.DepartmentDetailApiView.as_view(), name="complaint-clusters"),
+
+
+
+
 ]
+
