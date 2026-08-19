@@ -11,7 +11,10 @@ class Department(BaseModel):
             unique=True,
             null=True
         )
-
+    description = models.CharField(
+        max_length=200,
+        null=True
+    )
     class Meta:
         db_table = "departments"
 

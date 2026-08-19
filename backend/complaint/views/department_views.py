@@ -1,6 +1,10 @@
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 from config.permission import IsSuperUser
-from config.views import SuperAdminBaseApiView,BaseApiView
+from config.views import BaseApiView
+
 from complaint.models import Department
 from config.utils import paginated_response
 from complaint.serializers import DepartmentSerializer
@@ -32,12 +36,13 @@ class DepartmentListCreateApiView(BaseApiView):
             )
             if serializer.is_valid():
                 serializer.save()
-                return self.success("department creaeted successfully.")
+                return self.success("department creaeted successfully.",status_code=200)
             
             return self.error(serializer.errors)
         
         except Exception as exe:
             return self.internal_server_error(str(exe))
+
 
 class DepartmentDetailApiView(BaseApiView):
 
