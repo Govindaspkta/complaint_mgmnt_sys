@@ -1,3 +1,237 @@
+// import { useEffect, useState, useCallback } from "react";
+// import {
+//   getCategories,
+//   createCategory,
+//   updateCategory,
+//   deleteCategory,
+// } from "../../api/categoryApi";
+
+// export default function CategoryManagement() {
+//   const [categories, setCategories] = useState([]);
+//   const [loading, setLoading] = useState(false);
+//   const [submitting, setSubmitting] = useState(false);
+//   const [editingId, setEditingId] = useState(null);
+//   const [searchTerm, setSearchTerm] = useState("");
+
+//   const [formData, setFormData] = useState({
+//     name: "",
+//     display_name: "",
+//     description: "",
+//     is_active: true,
+//   });
+
+//   const fetchCategories = useCallback(async () => {
+//     try {
+//       setLoading(true);
+//       const res = await getCategories();
+//       console.log("📋 FULL RESPONSE:", res.data);
+
+//       const data = res.data?.success && res.data?.data?.results 
+//         ? res.data.data.results 
+//         : [];
+//       setCategories(data);
+//     } catch (err) {
+//       console.error("FETCH ERROR:", err);
+//     } finally {
+//       setLoading(false);
+//     }
+//   }, []);
+
+//   useEffect(() => {
+//     fetchCategories();
+//   }, [fetchCategories]);
+
+//   const handleChange = (e) => {
+//     const { name, value, type, checked } = e.target;
+//     setFormData(prev => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
+//   };
+
+//   const resetForm = () => {
+//     setEditingId(null);
+//     setFormData({ name: "", display_name: "", description: "", is_active: true });
+//   };
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+//     if (!formData.name.trim() || !formData.display_name.trim()) {
+//       alert("System Name and Display Name are required!");
+//       return;
+//     }
+
+//     try {
+//       setSubmitting(true);
+//       console.log("🚀 SUBMITTING...", { isUpdate: !!editingId, editingId, formData });
+
+//       if (editingId) {
+//         console.log(`📤 PUT to: /complaints/categories/${editingId}`);
+//         const res = await updateCategory(editingId, formData);
+//         console.log("✅ UPDATE SUCCESS:", res.data);
+//         alert("✅ Category Updated Successfully");
+//       } else {
+//         const res = await createCategory(formData);
+//         console.log("✅ CREATE SUCCESS:", res.data);
+//         alert("✅ Category Created Successfully");
+//       }
+
+//       resetForm();
+//       await fetchCategories();
+//     } catch (err) {
+//       console.error("❌ ERROR:", err);
+//       console.error("Response:", err.response?.data);
+//       alert(err.response?.data?.message || "Operation failed. Check console.");
+//     } finally {
+//       setSubmitting(false);
+//     }
+//   };
+
+//   const handleEdit = (cat) => {
+//     console.log("✏️ Editing:", cat);
+//     setEditingId(cat.reference_id);
+//     setFormData({
+//       name: cat.name || "",
+//       display_name: cat.display_name || "",
+//       description: cat.description || "",
+//       is_active: cat.is_active ?? true,
+//     });
+//     window.scrollTo({ top: 0, behavior: "smooth" });
+//   };
+
+//   const handleDelete = async (reference_id) => {
+//     if (!window.confirm("Delete this category?")) return;
+//     try {
+//       await deleteCategory(reference_id);
+//       alert("✅ Category Deleted");
+//       await fetchCategories();
+//     } catch (err) {
+//       console.error(err);
+//       alert("Cannot delete this category (may be in use)");
+//     }
+//   };
+
+//   const filtered = categories.filter(c =>
+//     c.display_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+//     c.name?.toLowerCase().includes(searchTerm.toLowerCase())
+//   );
+
+//   return (
+//     <div className="p-6 max-w-7xl mx-auto">
+//       <h1 className="text-3xl font-bold mb-2">Category Management</h1>
+//       <p className="text-gray-600 mb-8">Manage categories → Approved complaints route to govt systems (NEA etc.)</p>
+
+//       {/* FORM */}
+//       <div className="bg-white p-8 rounded-3xl shadow-xl mb-10">
+//         <h2 className="text-2xl font-semibold mb-6">
+//           {editingId ? "✏️ Edit Category" : "➕ Create New Category"}
+//         </h2>
+
+//         <form onSubmit={handleSubmit} className="space-y-6">
+//           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+//             <div>
+//               <label className="block mb-1">System Name</label>
+//               <input
+//                 type="text"
+//                 name="name"
+//                 value={formData.name}
+//                 onChange={handleChange}
+//                 className="w-full border p-4 rounded-2xl"
+//                 required
+//               />
+//             </div>
+//             <div>
+//               <label className="block mb-1">Display Name</label>
+//               <input
+//                 type="text"
+//                 name="display_name"
+//                 value={formData.display_name}
+//                 onChange={handleChange}
+//                 className="w-full border p-4 rounded-2xl"
+//                 required
+//               />
+//             </div>
+//           </div>
+
+//           <div>
+//             <label className="block mb-1">Description</label>
+//             <textarea
+//               name="description"
+//               value={formData.description}
+//               onChange={handleChange}
+//               className="w-full border p-4 rounded-2xl h-32"
+//             />
+//           </div>
+
+//           <div className="flex items-center gap-3">
+//             <input
+//               type="checkbox"
+//               name="is_active"
+//               checked={formData.is_active}
+//               onChange={handleChange}
+//             />
+//             <label>Active</label>
+//           </div>
+
+//           <div className="flex gap-4">
+//             <button
+//               type="submit"
+//               disabled={submitting}
+//               className="bg-blue-600 text-white px-10 py-4 rounded-2xl font-medium disabled:opacity-70"
+//             >
+//               {submitting ? "Processing..." : editingId ? "Update Category" : "Create Category"}
+//             </button>
+
+//             {editingId && (
+//               <button
+//                 type="button"
+//                 onClick={resetForm}
+//                 className="bg-gray-500 text-white px-10 py-4 rounded-2xl"
+//               >
+//                 Cancel
+//               </button>
+//             )}
+//           </div>
+//         </form>
+//       </div>
+
+//       {/* LIST */}
+//       <div className="flex justify-between mb-6">
+//         <h2 className="text-2xl font-semibold">Existing Categories ({filtered.length})</h2>
+//         <input
+//           type="text"
+//           placeholder="Search categories..."
+//           value={searchTerm}
+//           onChange={(e) => setSearchTerm(e.target.value)}
+//           className="border px-5 py-3 rounded-2xl w-80"
+//         />
+//       </div>
+
+//       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+//         {filtered.map((cat) => (
+//           <div key={cat.reference_id} className="bg-white p-6 rounded-3xl shadow">
+//             <h3 className="font-bold text-xl">{cat.display_name}</h3>
+//             <p className="text-gray-500">{cat.name}</p>
+//             {cat.description && <p className="mt-3 text-sm text-gray-600">{cat.description}</p>}
+
+//             <div className="flex gap-3 mt-6">
+//               <button
+//                 onClick={() => handleEdit(cat)}
+//                 className="flex-1 bg-yellow-500 text-white py-3 rounded-2xl"
+//               >
+//                 Edit
+//               </button>
+//               <button
+//                 onClick={() => handleDelete(cat.reference_id)}
+//                 className="flex-1 bg-red-500 text-white py-3 rounded-2xl"
+//               >
+//                 Delete
+//               </button>
+//             </div>
+//           </div>
+//         ))}
+//       </div>
+//     </div>
+//   );
+// }
+
 import { useEffect, useState, useCallback } from "react";
 import {
   getCategories,
@@ -5,9 +239,11 @@ import {
   updateCategory,
   deleteCategory,
 } from "../../api/categoryApi";
+import { getDepartments } from "../../api/departmentApi";   // ← import this
 
 export default function CategoryManagement() {
   const [categories, setCategories] = useState([]);
+  const [departments, setDepartments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -17,42 +253,68 @@ export default function CategoryManagement() {
     name: "",
     display_name: "",
     description: "",
+    department: "",          // ← will store department reference_id
     is_active: true,
   });
 
+  // Fetch categories
   const fetchCategories = useCallback(async () => {
     try {
       setLoading(true);
       const res = await getCategories();
-      console.log("📋 FULL RESPONSE:", res.data);
-
-      const data = res.data?.success && res.data?.data?.results 
-        ? res.data.data.results 
-        : [];
+      const data =
+        res.data?.success && res.data?.data?.results
+          ? res.data.data.results
+          : [];
       setCategories(data);
     } catch (err) {
-      console.error("FETCH ERROR:", err);
+      console.error("FETCH CATEGORIES ERROR:", err);
     } finally {
       setLoading(false);
     }
   }, []);
 
+  // Fetch departments for the dropdown
+  const fetchDepartments = useCallback(async () => {
+    try {
+      const res = await getDepartments();
+      const data =
+        res.data?.success && res.data?.data?.results
+          ? res.data.data.results
+          : [];
+      setDepartments(data);
+    } catch (err) {
+      console.error("FETCH DEPARTMENTS ERROR:", err);
+    }
+  }, []);
+
   useEffect(() => {
     fetchCategories();
-  }, [fetchCategories]);
+    fetchDepartments();
+  }, [fetchCategories, fetchDepartments]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
 
   const resetForm = () => {
     setEditingId(null);
-    setFormData({ name: "", display_name: "", description: "", is_active: true });
+    setFormData({
+      name: "",
+      display_name: "",
+      description: "",
+      department: "",
+      is_active: true,
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!formData.name.trim() || !formData.display_name.trim()) {
       alert("System Name and Display Name are required!");
       return;
@@ -60,37 +322,38 @@ export default function CategoryManagement() {
 
     try {
       setSubmitting(true);
-      console.log("🚀 SUBMITTING...", { isUpdate: !!editingId, editingId, formData });
+
+      // Prepare payload (send null if no department selected)
+      const payload = {
+        ...formData,
+        department: formData.department || null,
+      };
 
       if (editingId) {
-        console.log(`📤 PUT to: /complaints/categories/${editingId}`);
-        const res = await updateCategory(editingId, formData);
-        console.log("✅ UPDATE SUCCESS:", res.data);
+        await updateCategory(editingId, payload);
         alert("✅ Category Updated Successfully");
       } else {
-        const res = await createCategory(formData);
-        console.log("✅ CREATE SUCCESS:", res.data);
+        await createCategory(payload);
         alert("✅ Category Created Successfully");
       }
 
       resetForm();
       await fetchCategories();
     } catch (err) {
-      console.error("❌ ERROR:", err);
-      console.error("Response:", err.response?.data);
-      alert(err.response?.data?.message || "Operation failed. Check console.");
+      console.error(err);
+      alert(err.response?.data?.message || "Operation failed");
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleEdit = (cat) => {
-    console.log("✏️ Editing:", cat);
     setEditingId(cat.reference_id);
     setFormData({
       name: cat.name || "",
       display_name: cat.display_name || "",
       description: cat.description || "",
+      department: cat.department?.reference_id || cat.department || "",
       is_active: cat.is_active ?? true,
     });
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -108,15 +371,28 @@ export default function CategoryManagement() {
     }
   };
 
-  const filtered = categories.filter(c =>
-    c.display_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.name?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filtered = categories.filter(
+    (c) =>
+      c.display_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      c.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Helper to show department name in the list
+  const getDepartmentName = (cat) => {
+    if (cat.department?.display_name) return cat.department.display_name;
+    if (typeof cat.department === "string") {
+      const found = departments.find((d) => d.reference_id === cat.department);
+      return found?.display_name || "—";
+    }
+    return "—";
+  };
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <h1 className="text-3xl font-bold mb-2">Category Management</h1>
-      <p className="text-gray-600 mb-8">Manage categories → Approved complaints route to govt systems (NEA etc.)</p>
+      <p className="text-gray-600 mb-8">
+        Manage categories → Link them to departments → Complaints will be forwarded to the department email
+      </p>
 
       {/* FORM */}
       <div className="bg-white p-8 rounded-3xl shadow-xl mb-10">
@@ -127,7 +403,7 @@ export default function CategoryManagement() {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block mb-1">System Name</label>
+              <label className="block mb-1 font-medium">System Name</label>
               <input
                 type="text"
                 name="name"
@@ -137,8 +413,9 @@ export default function CategoryManagement() {
                 required
               />
             </div>
+
             <div>
-              <label className="block mb-1">Display Name</label>
+              <label className="block mb-1 font-medium">Display Name</label>
               <input
                 type="text"
                 name="display_name"
@@ -150,13 +427,31 @@ export default function CategoryManagement() {
             </div>
           </div>
 
+          {/* ===== DEPARTMENT DROPDOWN ===== */}
           <div>
-            <label className="block mb-1">Description</label>
+            <label className="block mb-1 font-medium">Department</label>
+            <select
+              name="department"
+              value={formData.department}
+              onChange={handleChange}
+              className="w-full border p-4 rounded-2xl bg-white"
+            >
+              <option value="">-- Select Department --</option>
+              {departments.map((dept) => (
+                <option key={dept.reference_id} value={dept.reference_id}>
+                  {dept.display_name} ({dept.email})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block mb-1 font-medium">Description</label>
             <textarea
               name="description"
               value={formData.description}
               onChange={handleChange}
-              className="w-full border p-4 rounded-2xl h-32"
+              className="w-full border p-4 rounded-2xl h-28"
             />
           </div>
 
@@ -166,8 +461,9 @@ export default function CategoryManagement() {
               name="is_active"
               checked={formData.is_active}
               onChange={handleChange}
+              id="is_active"
             />
-            <label>Active</label>
+            <label htmlFor="is_active">Active</label>
           </div>
 
           <div className="flex gap-4">
@@ -176,7 +472,11 @@ export default function CategoryManagement() {
               disabled={submitting}
               className="bg-blue-600 text-white px-10 py-4 rounded-2xl font-medium disabled:opacity-70"
             >
-              {submitting ? "Processing..." : editingId ? "Update Category" : "Create Category"}
+              {submitting
+                ? "Processing..."
+                : editingId
+                ? "Update Category"
+                : "Create Category"}
             </button>
 
             {editingId && (
@@ -193,8 +493,10 @@ export default function CategoryManagement() {
       </div>
 
       {/* LIST */}
-      <div className="flex justify-between mb-6">
-        <h2 className="text-2xl font-semibold">Existing Categories ({filtered.length})</h2>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-semibold">
+          Existing Categories ({filtered.length})
+        </h2>
         <input
           type="text"
           placeholder="Search categories..."
@@ -204,30 +506,47 @@ export default function CategoryManagement() {
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filtered.map((cat) => (
-          <div key={cat.reference_id} className="bg-white p-6 rounded-3xl shadow">
-            <h3 className="font-bold text-xl">{cat.display_name}</h3>
-            <p className="text-gray-500">{cat.name}</p>
-            {cat.description && <p className="mt-3 text-sm text-gray-600">{cat.description}</p>}
+      {loading ? (
+        <p className="text-center py-10">Loading...</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filtered.map((cat) => (
+            <div
+              key={cat.reference_id}
+              className="bg-white p-6 rounded-3xl shadow hover:shadow-lg transition"
+            >
+              <h3 className="font-bold text-xl">{cat.display_name}</h3>
+              <p className="text-gray-500 text-sm">{cat.name}</p>
 
-            <div className="flex gap-3 mt-6">
-              <button
-                onClick={() => handleEdit(cat)}
-                className="flex-1 bg-yellow-500 text-white py-3 rounded-2xl"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => handleDelete(cat.reference_id)}
-                className="flex-1 bg-red-500 text-white py-3 rounded-2xl"
-              >
-                Delete
-              </button>
+              <p className="mt-2 text-sm">
+                <span className="font-medium">Department:</span>{" "}
+                <span className="text-blue-600">{getDepartmentName(cat)}</span>
+              </p>
+
+              {cat.description && (
+                <p className="mt-3 text-sm text-gray-600 line-clamp-2">
+                  {cat.description}
+                </p>
+              )}
+
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={() => handleEdit(cat)}
+                  className="flex-1 bg-yellow-500 text-white py-3 rounded-2xl"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(cat.reference_id)}
+                  className="flex-1 bg-red-500 text-white py-3 rounded-2xl"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
