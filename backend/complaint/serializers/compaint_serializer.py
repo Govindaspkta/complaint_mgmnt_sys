@@ -1,7 +1,8 @@
 from rest_framework import serializers
 import os
-from complaint.models import AetherixComplaints, ComplaintCategory, ComplaintStatusChoices
+from complaint.models import AetherixComplaints, ComplaintCategory, ComplaintStatusChoices, Department
 from complaint.serializers import CategorySerializer
+
 
 # ================= MAIN SERIALIZER (For Create & Update) =================
 class ComplaintSerializer(serializers.Serializer):

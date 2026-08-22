@@ -26,12 +26,7 @@ class DepartmentSerializer(serializers.Serializer):
             "required": "Email is required."
         }
     )
-    department = serializers.SlugRelatedField(
-        slug_field="reference_id",
-        queryset=Department.objects.filter(is_active=True, is_deleted=False),
-        required=False,
-        allow_null=True
-    )
+   
 
     def create(self, validated_data):
         return Department.objects.create(**validated_data)
