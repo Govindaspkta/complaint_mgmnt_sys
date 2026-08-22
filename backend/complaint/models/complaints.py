@@ -64,7 +64,11 @@ class AetherixComplaints(BaseModel):
     priority_score = models.FloatField(
     default=0.0,
     help_text="Calculated priority score based on severity, upvotes and days pending"
-)
+    )
+
+    is_forwarded = models.BooleanField(default=False)
+    forwarded_at = models.DateTimeField(null=True, blank=True)
+    forwarded_to = models.EmailField(null=True, blank=True)
 
     class Meta:
         db_table = "aetherix_complaints"

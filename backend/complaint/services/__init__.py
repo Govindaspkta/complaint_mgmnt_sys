@@ -1,0 +1,1 @@
+from . email_forwarding import forward_complaint_to_department

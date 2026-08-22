@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from config.views import BaseApiView, SuperAdminBaseApiView
 from complaint.models import AetherixComplaints, ComplaintStatusChoices, ComplaintPriorityChoices
 from config.utils import paginated_response
+from complaint.services import forward_complaint_to_department
 from complaint.serializers import ComplaintSerializer, ComplaintReadOnlySerializer
 from authx.models import AetherixProfile, ProfileVerificationStatus, RoleChoices
 
@@ -117,10 +118,18 @@ class ComplaintsAdminUpdateApiView(SuperAdminBaseApiView):
             user= request.user
             if not (user.roles == RoleChoices.ADMIN or user.is_superuser):
                 return self.error("Permission Denied.",403)
-            complaint = AetherixComplaints.objects.get(
-                reference_id=reference_id,
-                is_active=True,
-                is_deleted=False
+            
+            # complaint = AetherixComplaints.objects.get(
+            #     reference_id=reference_id,
+            #     is_active=True,
+            #     is_deleted=False
+            # )
+            complaint = AetherixComplaints.objects.select_related(
+                'category', 'category__department'
+            ).get(
+                    reference_id=reference_id,
+                    is_active=True,
+                    is_deleted=False
             )
         except AetherixComplaints.DoesNotExist:
             return self.error("Complaint not found.", status_code=404)
@@ -140,6 +149,11 @@ class ComplaintsAdminUpdateApiView(SuperAdminBaseApiView):
                 status_upper = new_status.upper()
                 if status_upper in [choice[0] for choice in ComplaintStatusChoices.choices]:
                     updated_complaint.status = status_upper
+                    updated_complaint.save(update_fields=['status', 'is_verified'])
+
+                    #forward to the linked department
+                    forward_complaint_to_department(updated_complaint)
+                else:
                     updated_complaint.save(update_fields=['status'])
 
             refreshed_serializer = ComplaintReadOnlySerializer(updated_complaint, context={'request': request})

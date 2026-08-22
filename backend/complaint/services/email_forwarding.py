@@ -5,18 +5,30 @@ from django.utils import timezone
 
 def forward_complaint_to_department(complaint):
     """
-    Sends the approved complaint to the linked department email.
+    Forwards an approved complaint to the department email
+    linked with the complaint's category.
     """
-    if not complaint.category or not complaint.category.department:
-        print("❌ No category or department linked")
+
+    # 1. Safety checks
+    if not complaint.category:
+        print("❌ Complaint has no category")
         return False
 
     department = complaint.category.department
-
-    if not department.email or not department.is_active:
-        print("❌ Department has no email or is inactive")
+    if not department:
+        print("❌ Category has no linked department")
         return False
 
+    if not department.email or not department.is_active:
+        print(f"❌ Department '{department.display_name}' has no email or is inactive")
+        return False
+
+    # 2. Avoid sending duplicate emails
+    if complaint.is_forwarded:
+        print(f"⚠️ Complaint already forwarded to {complaint.forwarded_to}")
+        return False
+
+    # 3. Prepare email
     subject = f"[Aetherix] New Complaint - {complaint.category.display_name}"
 
     message = f"""
@@ -26,6 +38,7 @@ Complaint ID     : {complaint.reference_id}
 Title            : {complaint.title}
 Category         : {complaint.category.display_name}
 Department       : {department.display_name}
+Location         : {complaint.municipality}, Ward {complaint.ward}, {complaint.district}
 
 Description:
 {complaint.description}
@@ -42,6 +55,7 @@ Please take necessary action.
             fail_silently=False,
         )
 
+        # 4. Update complaint
         complaint.is_forwarded = True
         complaint.forwarded_at = timezone.now()
         complaint.forwarded_to = department.email
