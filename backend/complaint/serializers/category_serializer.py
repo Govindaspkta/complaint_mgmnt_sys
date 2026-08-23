@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from complaint.models import ComplaintCategory
+from complaint.models import ComplaintCategory, Department
 
 class CategorySerializer(serializers.Serializer):
     reference_id = serializers.CharField(
@@ -16,6 +16,12 @@ class CategorySerializer(serializers.Serializer):
         error_messages={
             "required":"Category Name is required."
         }
+    )
+    department = serializers.SlugRelatedField(
+        slug_field="reference_id",
+        queryset=Department.objects.filter(is_active=True, is_deleted=False),
+        required=False,
+        allow_null=True
     )
 
     description = serializers.CharField()
