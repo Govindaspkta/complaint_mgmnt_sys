@@ -13,7 +13,7 @@ class ComplaintListCreateApiViews(BaseApiView):
 
     def get(self, request):
         try:
-            complaints = AetherixComplaints.objects.filter(
+            complaints = AetherixComplaints.objects.select_related().filter(
                 is_active=True,
             ).order_by('-priority_score')
             return paginated_response(
