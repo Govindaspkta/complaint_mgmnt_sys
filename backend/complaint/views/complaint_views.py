@@ -13,7 +13,11 @@ class ComplaintListCreateApiViews(BaseApiView):
 
     def get(self, request):
         try:
-            complaints = AetherixComplaints.objects.select_related().filter(
+            complaints = AetherixComplaints.objects.select_related(
+                'user',
+                'category',
+                'category__department'
+            ).filter(
                 is_active=True,
             ).order_by('-priority_score')
             return paginated_response(
@@ -51,7 +55,11 @@ class ComplaintListCreateApiViews(BaseApiView):
 class ComplaintsDetailApiView(BaseApiView):
 
     def get(self, request, reference_id):
-        complaint = AetherixComplaints.objects.filter(
+        complaint = AetherixComplaints.objects.select_related(
+            'user',
+            'category',
+            'category__department'
+        ).filter(
             is_active=True,
             is_deleted=False,
             user=request.user,
