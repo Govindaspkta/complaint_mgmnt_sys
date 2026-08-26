@@ -20,6 +20,25 @@ class ComplaintListCreateApiViews(BaseApiView):
             ).filter(
                 is_active=True,
             ).order_by('-priority_score')
+
+            status = request.GET.get('status')
+            priority = request.GET.get('priority')
+
+            if status:
+                queryset =queryset.filter(status=status)
+
+            if priority:
+                queryset = queryset.filter(priority =priority)
+
+            search = request.GET.get('search')
+            if search:
+                queryset = queryset.filter(
+                    title__icontains=search
+                ) | queryset.filter(
+                        description__icontains=search
+                )
+                
+
             return paginated_response(
                 request=request,
                 queryset=complaints,
