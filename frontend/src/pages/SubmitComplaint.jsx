@@ -175,23 +175,29 @@ export default function SubmitComplaint() {
       setFormData({ title: "", category: "", priority: "medium", description: "", image: null });
       setLocation(null);
       setErrors({});
-    } catch (err) {
-      const status = err.response?.status;
-      const backendError = err.response?.data;
+    }  catch (err) {
+  const status = err.response?.status;
+  const backendError = err.response?.data;
 
-      console.error("🚨 Submit Error Status:", status);
-      console.error("🚨 Submit Error Body:", backendError);
+  if (status === 409) {
+    const duplicates = backendError?.data?.possible_duplicates || [];
+    const titles = duplicates.map(d => `• ${d.title}`).join("\n");
 
-      if (backendError?.errors) {
-        console.error("🚨 Field Errors:", backendError.errors);
-        const fieldErrorMessages = Object.entries(backendError.errors)
-          .map(([field, msgs]) => `${field}: ${Array.isArray(msgs) ? msgs.join(", ") : msgs}`)
-          .join("\n");
-        alert(`❌ Validation failed:\n${fieldErrorMessages}`);
-      } else {
-        alert(backendError?.message || backendError?.detail || "Failed to submit complaint.");
-      }
-    } finally {
+    alert(
+      `⚠️ Similar complaint already exists in this location:\n\n${titles || "Possible duplicate found"}`
+    );
+    return;
+  }
+
+  if (backendError?.errors) {
+    const fieldErrorMessages = Object.entries(backendError.errors)
+      .map(([field, msgs]) => `${field}: ${Array.isArray(msgs) ? msgs.join(", ") : msgs}`)
+      .join("\n");
+    alert(`❌ Validation failed:\n${fieldErrorMessages}`);
+  } else {
+    alert(backendError?.message || "Failed to submit complaint.");
+  }
+} finally {
       setIsSubmitting(false);
     }
   };

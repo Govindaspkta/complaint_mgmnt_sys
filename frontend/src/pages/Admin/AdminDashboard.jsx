@@ -4,7 +4,7 @@ import {
   Users,
   ShieldCheck,
   List,
-  Building2,     
+  Building2,
   LogOut,
 } from "lucide-react";
 
@@ -12,11 +12,12 @@ export default function AdminDashboard() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Current path for active link
   const currentPath = location.pathname.split("/").pop() || "";
 
   const handleLogout = () => {
     if (window.confirm("Are you sure you want to logout from Admin Panel?")) {
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("user");
       localStorage.removeItem("token");
       navigate("/login");
     }
@@ -27,7 +28,7 @@ export default function AdminDashboard() {
       {/* SIDEBAR */}
       <div className="w-72 bg-white border-r shadow-lg fixed h-screen overflow-y-auto flex flex-col">
         <div className="p-6 border-b">
-          <h1 className="text-3xl font-bold text-primary-700">Aetherix</h1>
+          <h1 className="text-3xl font-bold text-primary-700">Hamro Aawaj</h1>
           <p className="text-sm text-gray-500">Admin Panel</p>
         </div>
 
@@ -46,7 +47,6 @@ export default function AdminDashboard() {
             isActive={currentPath === "profile-verification"}
           />
 
-          {/* ===== NEW DEPARTMENT LINK ===== */}
           <SidebarLink
             to="departments"
             icon={Building2}
@@ -76,7 +76,7 @@ export default function AdminDashboard() {
           />
         </nav>
 
-        {/* Logout Button */}
+        {/* Logout in Sidebar */}
         <div className="p-4 border-t mt-auto">
           <button
             onClick={handleLogout}
@@ -90,8 +90,12 @@ export default function AdminDashboard() {
 
       {/* MAIN CONTENT */}
       <div className="flex-1 ml-72">
-        <div className="bg-white border-b px-8 py-5 sticky top-0 z-10">
-          <h2 className="text-2xl font-semibold">Admin Panel</h2>
+        {/* Simple top navbar - brand only */}
+        <div className="bg-white border-b px-8 py-5 sticky top-0 z-10 flex items-center justify-between">
+          <h2 className="text-2xl font-semibold text-gray-800">
+            Hamro Aawaj
+            <span className="text-gray-500 text-base font-normal ml-2">Admin</span>
+          </h2>
         </div>
 
         <div className="p-8">
