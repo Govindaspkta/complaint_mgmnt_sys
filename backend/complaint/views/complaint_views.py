@@ -1,4 +1,3 @@
-
 from django.core.cache import cache
 from rest_framework.response import Response
 from config.views import BaseApiView, SuperAdminBaseApiView
@@ -7,6 +6,7 @@ from config.utils import paginated_response
 from complaint.services import forward_complaint_to_department
 from complaint.serializers import ComplaintSerializer, ComplaintReadOnlySerializer
 from authx.models import AetherixProfile, ProfileVerificationStatus, RoleChoices
+from complaint.services import detect_duplicate_with_groq
 
 
 class ComplaintListCreateApiViews(BaseApiView):
@@ -61,6 +61,27 @@ class ComplaintListCreateApiViews(BaseApiView):
             serializer = ComplaintSerializer(data=request.data, context={'request': request})
             
             if serializer.is_valid():
+
+
+                # Duplicate detection before save
+
+                duplicates = detect_duplicate_with_groq({
+                    "title": serializer.validated_data["title"],
+                    "description": serializer.validated_data["description"],
+                    "category": serializer.validated_data["category"],
+                    "province": serializer.validated_data["province"],
+                    "district": serializer.validated_data["district"],
+                    "municipality": serializer.validated_data["municipality"],
+                    "ward": serializer.validated_data["ward"],
+                })
+
+                if duplicates:
+                    return self.error(
+                        message="Similar complaint already exists in this location.",
+                        data={"possible_duplicates": duplicates},
+                        status_code=409
+                    )
+            
                 serializer.save()
                 cache.clear()
                 return self.success("Complaint created successfully.")
