@@ -1,49 +1,40 @@
-# from .base import *
-# from decouple import config
+from .base import *
+from decouple import config
 
-# # Allowed hosts
-# ALLOWED_HOSTS = ['*']  
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # recompute after BASE_DIR fix
 
-# DEBUG = True
-# SECRET_KEY = config('SECRET_KEY')
+DEBUG = False
+SECRET_KEY = config('SECRET_KEY')
 
-# # Database
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.postgresql_psycopg2",
-#         "NAME": config("DB_NAME"),
-#         "USER": config("DB_USER"),
-#         "PASSWORD": config("DB_PASSWORD"),
-#         "HOST": config("DB_HOST"),
-#         "PORT": config("DB_PORT"),
-#         "OPTIONS": {
-#             "sslmode": "require", 
-#         },
-#     }
-# }
-# CACHES = {
-#     "default": {
-#         "BACKEND": "django.core.cache.backends.dummy.DummyCache",
-#     }
-# }
-# # SECURE_SSL_REDIRECT = True
-# # SESSION_COOKIE_SECURE = True
-# # CSRF_COOKIE_SECURE = True
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
 
-# # Allow only your frontend origin
-# # CORS_ALLOWED_ORIGINS = []
-# CORS_ALLOW_ALL_ORIGINS = True
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': config("DB_NAME"),
+        'USER': config("DB_USER"),
+        'PASSWORD': config("DB_PASSWORD"),
+        'HOST': config("DB_HOST"),
+        'PORT': config("DB_PORT"),
+    }
+}
 
-# CORS_ALLOW_CREDENTIALS = False
+CORS_ORIGIN_ALLOW_ALL = False
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', default='').split(',')
 
-# CORS_ALLOW_HEADERS = [
-#     "accept",
-#     "accept-encoding",
-#     "authorization",
-#     "content-type",
-#     "dnt",
-#     "origin",
-#     "user-agent",
-#     "x-csrftoken",
-#     "x-requested-with",
-# ]
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+# Caching — plain in-memory for now, add Redis later
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    }
+}
+
+# Security hardening
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True

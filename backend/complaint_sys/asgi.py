@@ -13,7 +13,7 @@ from  decouple import config
 
 from django.core.asgi import get_asgi_application
 mode = config('MODE')
-if mode == 'developmnet':   
+if mode == 'development':   
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'complaint_sys.settings.development')
 else:
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'complaint_sys.settings.production')
