@@ -5,7 +5,7 @@ from config.models import BaseModel
 class Department(BaseModel):
     name = models.CharField(max_length=100, unique=True)   
     email = models.EmailField()
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True, db_index=True)
     display_name = models.CharField(
             max_length=100,
             unique=True,

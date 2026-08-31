@@ -1,4 +1,5 @@
 from django.core.cache import cache
+from django.db.models import Q
 from rest_framework.response import Response
 from config.views import BaseApiView, SuperAdminBaseApiView
 from complaint.models import AetherixComplaints, ComplaintStatusChoices, ComplaintPriorityChoices
@@ -25,23 +26,22 @@ class ComplaintListCreateApiViews(BaseApiView):
             priority = request.GET.get('priority')
 
             if status:
-                queryset =queryset.filter(status=status)
+                queryset =complaints.filter(status=status)
 
             if priority:
-                queryset = queryset.filter(priority =priority)
+                queryset = complaints.filter(priority =priority)
 
             search = request.GET.get('search')
             if search:
-                queryset = queryset.filter(
-                    title__icontains=search
-                ) | queryset.filter(
-                        description__icontains=search
+                queryset = complaints.filter(
+                    Q(title__icontains=search) |
+                    Q(description__icontains=search)
                 )
                 
 
             return paginated_response(
                 request=request,
-                queryset=complaints,
+                queryset=queryset,
                 serializer_class=ComplaintReadOnlySerializer,
                 message="Success"
             )

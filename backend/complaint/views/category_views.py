@@ -75,7 +75,9 @@ class CategooryDetailApiView(BaseApiView):
         category = ComplaintCategory.objects.filter(
             reference_id =reference_id,
             is_deleted=False,
-        )
+        ).first()
+        if not category:
+            return self.error("Error","Ctegory Not Found",404)
         category.is_deleted =True
         category.save()
         return self.success(

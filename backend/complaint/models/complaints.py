@@ -54,16 +54,19 @@ class AetherixComplaints(BaseModel):
     status = models.CharField(
         max_length=20,
         choices=ComplaintStatusChoices.choices,
-        default="PENDING"
+        default="PENDING",
+        db_index=True
     )
     priority = models.CharField(
         max_length=20,
         choices=ComplaintPriorityChoices.choices,
-        default="MEDIUM"
+        default="MEDIUM",
+          db_index=True
     )
     priority_score = models.FloatField(
     default=0.0,
-    help_text="Calculated priority score based on severity, upvotes and days pending"
+    help_text="Calculated priority score based on severity, upvotes and days pending",
+      db_index=True
     )
 
     is_forwarded = models.BooleanField(default=False)

@@ -42,7 +42,8 @@ class AetherixProfile(BaseModel):
     )
     verification_status = models.CharField(
         choices=ProfileVerificationStatus.choices,
-        default=ProfileVerificationStatus.PENDING
+        default=ProfileVerificationStatus.PENDING,
+        
     )
     rejection_reason = models.CharField(
         max_length=255,
