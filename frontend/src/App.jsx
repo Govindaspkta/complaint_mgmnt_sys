@@ -81,6 +81,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import ComplaintDetail from './pages/ComplaintDetails';
 import HotspotComplaints from './pages/HotspotComplaint';
 import DepartmentManagement from './pages/Admin/DepartmentManagement';
+import AdminAllComplaints from './pages/Admin/AdminAllComplaints';
 
 // User layout with main navbar
 function UserLayout() {
@@ -120,6 +121,7 @@ function App() {
             </ProtectedRoute>
           }
         >
+          <Route path="complaints" element={<AdminAllComplaints />} />
           <Route index element={<DashboardOverview />} />
           <Route path="profile-verification" element={<ProfileVerification />} />
           <Route path="complaint-verification" element={<ComplaintVerification />} />
