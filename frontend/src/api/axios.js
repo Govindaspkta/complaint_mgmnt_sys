@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "",
+  baseURL: import.meta.env.VITE_API_URL,
   withCredentials: true,
 });
 
@@ -31,14 +31,11 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const refreshResponse = await axios.post(
-          // "http://127.0.0.1:8000/authx/refresh/",
-            "/authx/refresh/",
-
-          {},
-          { withCredentials: true }
-        );
-
+       const refreshResponse = await axios.post(
+  `${import.meta.env.VITE_API_URL}/authx/refresh/`,
+  {},
+  { withCredentials: true }
+);
         const newAccessToken = refreshResponse.data.data.access;
 
         localStorage.setItem("access_token", newAccessToken);
