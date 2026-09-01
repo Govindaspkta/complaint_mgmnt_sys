@@ -7,8 +7,7 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'  # recompute after BASE_DIR fix
 DEBUG = False
 SECRET_KEY = config('SECRET_KEY')
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
-
+ALLOWED_HOSTS = [h.strip() for h in config('ALLOWED_HOSTS', default='').split(',') if h.strip()]
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
