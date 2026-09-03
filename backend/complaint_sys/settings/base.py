@@ -97,6 +97,9 @@ TEMPLATES = [
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STORAGES = {
+      "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",  # handles user-uploaded files (profile pictures, etc.)
+    },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },

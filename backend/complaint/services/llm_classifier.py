@@ -6,34 +6,34 @@ from complaint.models import AetherixComplaints
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
 
-def detect_duplicate_with_groq(new_data, threshold_candidates=10):
-    """
-    new_data = {
-        "title": str,
-        "description": str,
-        "category": category_obj,
-        "province": str,
-        "district": str,
-        "municipality": str,
-        "ward": str,
-    }
-    """
+def detect_duplicate_with_groq(new_data, threshold_candidates=20):
+    print("\n===== DUPLICATE CHECK START =====")
+    print("New data:", {
+        "title": new_data.get("title"),
+        "category": getattr(new_data.get("category"), "name", new_data.get("category")),
+        "province": new_data.get("province"),
+        "district": new_data.get("district"),
+        "municipality": new_data.get("municipality"),
+        "ward": new_data.get("ward"),
+    })
 
-    # 1. First filter by same category + full location
     candidates = AetherixComplaints.objects.filter(
         is_active=True,
         is_deleted=False,
         category=new_data["category"],
-        province__iexact=new_data["province"],
-        district__iexact=new_data["district"],
-        municipality__iexact=new_data["municipality"],
-        ward__iexact=str(new_data["ward"]),
+        province__iexact=str(new_data["province"]).strip(),
+        district__iexact=str(new_data["district"]).strip(),
+        municipality__iexact=str(new_data["municipality"]).strip(),
+        ward__iexact=str(new_data["ward"]).strip(),
     ).order_by("-created_at")[:threshold_candidates]
 
+    print("Candidates found:", candidates.count())
+
     if not candidates.exists():
+        print("No candidates in same location/category")
+        print("===== DUPLICATE CHECK END =====\n")
         return []
 
-    # 2. Prepare candidate list for LLM
     candidate_text = ""
     for i, c in enumerate(candidates, start=1):
         candidate_text += f"""
@@ -44,32 +44,28 @@ Description: {c.description}
 """
 
     prompt = f"""
-You are a duplicate complaint detection system.
+You are a duplicate complaint detector.
 
 New Complaint:
 Title: {new_data["title"]}
 Description: {new_data["description"]}
-Location: {new_data["province"]}, {new_data["district"]}, {new_data["municipality"]}, Ward {new_data["ward"]}
 
-Existing complaints in the same location and category:
+Existing complaints in same location and category:
 {candidate_text}
 
-Task:
-Find if the new complaint is a duplicate of any existing complaint.
-Two complaints are duplicates only if they describe the same real-world problem.
+Two complaints are duplicates if they describe the same real-world problem.
 
-Return ONLY valid JSON in this format:
+Return ONLY JSON:
 {{
   "is_duplicate": true,
-  "matched_reference_ids": ["id1", "id2"],
+  "matched_reference_ids": ["uuid-here"],
   "reason": "short reason"
 }}
-
-If no duplicate:
+or
 {{
   "is_duplicate": false,
   "matched_reference_ids": [],
-  "reason": "no similar issue found"
+  "reason": "different issue"
 }}
 """
 
@@ -77,26 +73,25 @@ If no duplicate:
         response = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             messages=[
-                {
-                    "role": "system",
-                    "content": "You are a strict JSON-only duplicate detector."
-                },
+                {"role": "system", "content": "Return strict JSON only."},
                 {"role": "user", "content": prompt}
             ],
-            temperature=0.0,
-            max_tokens=200
+            temperature=0,
+            max_tokens=300,
         )
 
         raw = response.choices[0].message.content.strip()
+        print("LLM raw response:", raw)
 
-        # Clean markdown if model returns ```json
         raw = raw.replace("```json", "").replace("```", "").strip()
         result = json.loads(raw)
 
         if not result.get("is_duplicate"):
+            print("LLM says not duplicate")
+            print("===== DUPLICATE CHECK END =====\n")
             return []
 
-        matched_ids = result.get("matched_reference_ids", [])
+        matched_ids = [str(x) for x in result.get("matched_reference_ids", [])]
         duplicates = []
 
         for c in candidates:
@@ -106,11 +101,14 @@ If no duplicate:
                     "title": c.title,
                     "status": c.status,
                     "created_at": c.created_at,
-                    "reason": result.get("reason", "")
+                    "reason": result.get("reason", ""),
                 })
 
+        print("Matched duplicates:", duplicates)
+        print("===== DUPLICATE CHECK END =====\n")
         return duplicates
 
     except Exception as e:
-        print(f"Groq Duplicate Detection Error: {e}")
+        print("Groq Duplicate Detection Error:", str(e))
+        print("===== DUPLICATE CHECK END =====\n")
         return []

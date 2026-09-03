@@ -41,7 +41,7 @@ class ComplaintListCreateApiViews(BaseApiView):
 
             return paginated_response(
                 request=request,
-                queryset=queryset,
+                queryset=complaints,
                 serializer_class=ComplaintReadOnlySerializer,
                 message="Success"
             )
@@ -61,7 +61,9 @@ class ComplaintListCreateApiViews(BaseApiView):
             serializer = ComplaintSerializer(data=request.data, context={'request': request})
             
             if serializer.is_valid():
-
+                print("🟡 Duplicate check started")
+                duplicates = detect_duplicate_with_groq({...})
+                print("🟡 Duplicates found:", duplicates)
 
                 # Duplicate detection before save
 
