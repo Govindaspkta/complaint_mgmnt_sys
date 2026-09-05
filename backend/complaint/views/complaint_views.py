@@ -26,14 +26,14 @@ class ComplaintListCreateApiViews(BaseApiView):
             priority = request.GET.get('priority')
 
             if status:
-                queryset =complaints.filter(status=status)
+                complaints =complaints.filter(status=status)
 
             if priority:
-                queryset = complaints.filter(priority =priority)
+                complaints = complaints.filter(priority =priority)
 
             search = request.GET.get('search')
             if search:
-                queryset = complaints.filter(
+                complaints = complaints.filter(
                     Q(title__icontains=search) |
                     Q(description__icontains=search)
                 )
