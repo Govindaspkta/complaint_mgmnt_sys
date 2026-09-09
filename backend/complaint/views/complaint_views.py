@@ -14,6 +14,10 @@ class ComplaintListCreateApiViews(BaseApiView):
 
     def get(self, request):
         try:
+            # cache_key = f"compalints_list:{request.GET.urlencode()}"
+            # data = cache.get(cache_key)
+            # if  data:
+            #     return self.success("Success",data)
             complaints = AetherixComplaints.objects.select_related(
                 'user',
                 'category',
@@ -21,23 +25,19 @@ class ComplaintListCreateApiViews(BaseApiView):
             ).filter(
                 is_active=True,
             ).order_by('-priority_score')
-
+            
             status = request.GET.get('status')
             priority = request.GET.get('priority')
-
             if status:
                 complaints =complaints.filter(status=status)
-
             if priority:
                 complaints = complaints.filter(priority =priority)
-
             search = request.GET.get('search')
             if search:
                 complaints = complaints.filter(
                     Q(title__icontains=search) |
                     Q(description__icontains=search)
                 )
-                
 
             return paginated_response(
                 request=request,
@@ -45,6 +45,8 @@ class ComplaintListCreateApiViews(BaseApiView):
                 serializer_class=ComplaintReadOnlySerializer,
                 message="Success"
             )
+            # cache.set(cache_key, response.data, timeout = 60)
+            # return response
         except Exception as e:
             return self.internal_server_error(str(e))
         
@@ -62,8 +64,6 @@ class ComplaintListCreateApiViews(BaseApiView):
             
             if serializer.is_valid():
                 print("🟡 Duplicate check started")
-                duplicates = detect_duplicate_with_groq({...})
-                print("🟡 Duplicates found:", duplicates)
 
                 # Duplicate detection before save
 

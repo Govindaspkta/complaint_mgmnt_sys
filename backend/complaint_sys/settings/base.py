@@ -15,17 +15,21 @@ AUTH_USER_MODEL = 'authx.AetherixUsers' # 'app_name.ModelName'
 # Application definition
 
 INSTALLED_APPS = [
+    'cloudinary_storage',
+    'django.contrib.staticfiles',
+    'cloudinary',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
     'authx',
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',  # Enable the blacklist app
     'corsheaders',
     'complaint',
+    'dashboard'
+
 ]
 
 MIDDLEWARE = [
