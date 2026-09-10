@@ -14,14 +14,16 @@ class ComplaintListCreateApiViews(BaseApiView):
 
     def get(self, request):
         try:
-            # cache_key = f"compalints_list:{request.GET.urlencode()}"
-            # data = cache.get(cache_key)
-            # if  data:
-            #     return self.success("Success",data)
+            cache_key = f"complaints_list:{request.GET.urlencode()}"
+            data = cache.get(cache_key)
+            if  data is not None:
+                return Response(data)
+            
             complaints = AetherixComplaints.objects.select_related(
                 'user',
                 'category',
                 'category__department'
+
             ).filter(
                 is_active=True,
             ).order_by('-priority_score')
@@ -39,14 +41,15 @@ class ComplaintListCreateApiViews(BaseApiView):
                     Q(description__icontains=search)
                 )
 
-            return paginated_response(
+            response = paginated_response(
                 request=request,
                 queryset=complaints,
                 serializer_class=ComplaintReadOnlySerializer,
                 message="Success"
             )
-            # cache.set(cache_key, response.data, timeout = 60)
-            # return response
+            cache.set(cache_key, response.data, timeout = 60)
+            return response
+        
         except Exception as e:
             return self.internal_server_error(str(e))
         
@@ -85,7 +88,7 @@ class ComplaintListCreateApiViews(BaseApiView):
                     )
             
                 serializer.save()
-                cache.clear()
+                cache.delete_pattern("complaints_list:*")
                 return self.success("Complaint created successfully.")
             
             return self.error("Validation error.", errors=serializer.errors, status_code=400)
@@ -111,6 +114,7 @@ class ComplaintsDetailApiView(BaseApiView):
             return self.error("Complaint not found.", status_code=404)
 
         serializer = ComplaintReadOnlySerializer(complaint, context={'request': request})
+
         return self.success("Success", serializer.data)
 
     def put(self, request, reference_id):
@@ -124,6 +128,7 @@ class ComplaintsDetailApiView(BaseApiView):
             return self.error("Complaint not found.", status_code=404)
 
         serializer = ComplaintSerializer(complaint, data=request.data, partial=True, context={'request': request})
+
         if serializer.is_valid():
             updated_complaint = serializer.save()
             
@@ -131,7 +136,7 @@ class ComplaintsDetailApiView(BaseApiView):
             updated_complaint.status = ComplaintStatusChoices.PENDING
             updated_complaint.save(update_fields=['status'])
             
-            cache.clear()
+            cache.delete_pattern("complaints_list:*")
             return self.success("Complaint updated successfully. Status is now PENDING.", 
                               ComplaintReadOnlySerializer(updated_complaint).data)
         
@@ -148,7 +153,7 @@ class ComplaintsDetailApiView(BaseApiView):
 
         complaint.is_deleted = True
         complaint.save()
-        cache.clear()
+        cache.delete_pattern("complaints_list:*")
         return self.success("Complaint Deleted Successfully.")
 
 
@@ -169,11 +174,6 @@ class ComplaintsAdminUpdateApiView(SuperAdminBaseApiView):
             if not (user.roles == RoleChoices.ADMIN or user.is_superuser):
                 return self.error("Permission Denied.",403)
             
-            # complaint = AetherixComplaints.objects.get(
-            #     reference_id=reference_id,
-            #     is_active=True,
-            #     is_deleted=False
-            # )
             complaint = AetherixComplaints.objects.select_related(
                 'category', 'category__department'
             ).get(

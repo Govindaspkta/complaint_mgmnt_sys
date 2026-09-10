@@ -11,21 +11,17 @@ def forward_complaint_to_department(complaint):
 
     # 1. Safety checks
     if not complaint.category:
-        print("❌ Complaint has no category")
         return False
 
     department = complaint.category.department
     if not department:
-        print("❌ Category has no linked department")
         return False
 
     if not department.email or not department.is_active:
-        print(f"❌ Department '{department.display_name}' has no email or is inactive")
         return False
 
     # 2. Avoid sending duplicate emails
     if complaint.is_forwarded:
-        print(f"⚠️ Complaint already forwarded to {complaint.forwarded_to}")
         return False
 
     # 3. Prepare email
@@ -61,9 +57,7 @@ Please take necessary action.
         complaint.forwarded_to = department.email
         complaint.save(update_fields=["is_forwarded", "forwarded_at", "forwarded_to"])
 
-        print(f"✅ Email successfully sent to {department.email}")
         return True
 
     except Exception as e:
-        print(f"💥 Email sending failed: {e}")
         return False
