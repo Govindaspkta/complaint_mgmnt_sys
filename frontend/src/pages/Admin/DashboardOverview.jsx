@@ -8,23 +8,23 @@ export default function DashboardOverview() {
     total_complaints: 0,
     total_categories: 0,
   });
+useEffect(() => {
+  const fetchStats = async () => {
+    try {
+      const res = await getDashboardStats();
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const res = await getDashboardStats();
+      console.log("API RESPONSE:", res);
 
-        if (res?.data?.data) {
-          setStats(res.data.data);
-        }
-      } catch (error) {
-        console.error("Dashboard fetch error:", error);
+      if (res?.data?.data) {
+        setStats(res.data.data);
       }
-    };
+    } catch (error) {
+      console.error("Dashboard fetch error:", error);
+    }
+  };
 
-    fetchStats();
-  }, []);
-
+  fetchStats();
+}, []);
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
