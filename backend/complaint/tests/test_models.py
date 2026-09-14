@@ -3,8 +3,8 @@ from complaint.models import (
     AetherixComplaints,
     ComplaintStatusChoices,
     ComplaintPriorityChoices,
+    ComplaintCategory
 )
-from complaint.models import ComplaintCategory
 from authx.models import AetherixUsers
 
 
