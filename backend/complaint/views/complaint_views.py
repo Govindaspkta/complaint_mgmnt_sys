@@ -50,7 +50,7 @@ class ComplaintListCreateApiViews(BaseApiView):
             cache.set(cache_key, response.data, timeout = 60)
             return response
         
-        except Exception as e:
+        except Exception as e: 
             return self.internal_server_error(str(e))
         
     def post(self, request):
