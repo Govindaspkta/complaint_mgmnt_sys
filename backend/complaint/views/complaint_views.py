@@ -66,7 +66,6 @@ class ComplaintListCreateApiViews(BaseApiView):
             serializer = ComplaintSerializer(data=request.data, context={'request': request})
             
             if serializer.is_valid():
-                print("🟡 Duplicate check started")
 
                 # Duplicate detection before save
 
