@@ -43,23 +43,13 @@ CLOUDINARY_STORAGE = {
     "API_KEY": config("CLOUDINARY_API_KEY"),
     "API_SECRET": config("CLOUDINARY_API_SECRET"),
 }
-
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
 }
 
-# THIS LINE IS MANDATORY — it stops the AttributeError
-STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
-
-WHITENOISE_SKIP_COMPRESS_EXTENSIONS = (
-    "jpg", "jpeg", "png", "gif", "webp",
-    "zip", "gz", "tgz", "bz2", "tbz", "xz", "br",
-    "swf", "flv", "woff", "woff2", "map",
-)
-
-WHITENOISE_MANIFEST_STRICT = False
+STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
