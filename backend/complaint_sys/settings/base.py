@@ -25,7 +25,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'authx',
     'rest_framework',
-    'rest_framework_simplejwt.token_blacklist',  # Enable the blacklist app
+    'rest_framework_simplejwt.token_blacklist', 
     'corsheaders',
     'complaint',
     'dashboard'
