@@ -44,4 +44,11 @@ CLOUDINARY_STORAGE = {
     'API_KEY': config('CLOUDINARY_API_KEY'),
     'API_SECRET': config('CLOUDINARY_API_SECRET'),
 }
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",  # user uploads → Cloudinary
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",  # keep whitenoise for static, unchanged from base.py
+    },
+}
