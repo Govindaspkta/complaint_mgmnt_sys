@@ -44,11 +44,17 @@ CLOUDINARY_STORAGE = {
     'API_KEY': config('CLOUDINARY_API_KEY'),
     'API_SECRET': config('CLOUDINARY_API_SECRET'),
 }
+# production.py
 STORAGES = {
     "default": {
-        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",  # user uploads → Cloudinary
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",  # keep whitenoise for static, unchanged from base.py
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
+
+# django-cloudinary-storage's collectstatic override still checks this
+# legacy attribute directly — Django 6.0 no longer auto-populates it from
+# STORAGES, so we set it explicitly to keep that package working.
+STATICFILES_STORAGE = STORAGES["staticfiles"]["BACKEND"]
