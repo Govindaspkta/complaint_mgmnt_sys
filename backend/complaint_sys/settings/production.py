@@ -52,5 +52,5 @@ STORAGES = {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
-
+STATICFILES_STORAGE = STORAGES["staticfiles"]["BACKEND"]
 
