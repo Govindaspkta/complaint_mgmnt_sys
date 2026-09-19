@@ -50,7 +50,7 @@ class RefreshTokenApiView(PublicApiView):
                 key='refresh_token',
                 value=str(new_refresh),
                 httponly=True, #only ofr dev
-                secure=False,
+                secure=True,
                 samesite='Lax',
                 path='/',
                 max_age=24*60*60

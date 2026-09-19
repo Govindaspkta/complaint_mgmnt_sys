@@ -76,8 +76,10 @@ class GoogleLoginAPIView(PublicApiView):
                 value=str(refresh),
                 httponly=True,
                 secure=False,
-                samesite="Lax",
-                max_age=24*60*60
+                samesite="None",
+                max_age=24*60*60,
+                path='/'
+
             )
             return response
         except Exception as e:

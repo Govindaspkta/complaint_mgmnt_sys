@@ -58,8 +58,9 @@ class LoginAPIView(PublicApiView):
             key ='refresh_token',
             value= str(refresh),
             httponly=True,
-            secure=False,
-            samesite='Lax',
-            max_age=24*60*60
+            secure=True,
+            samesite='None',
+            max_age=24*60*60,
+            path='/'
         )
         return response
