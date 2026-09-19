@@ -58,3 +58,4 @@ STORAGES = {
 # legacy attribute directly — Django 6.0 no longer auto-populates it from
 # STORAGES, so we set it explicitly to keep that package working.
 STATICFILES_STORAGE = STORAGES["staticfiles"]["BACKEND"]
+WHITENOISE_MANIFEST_STRICT = False
