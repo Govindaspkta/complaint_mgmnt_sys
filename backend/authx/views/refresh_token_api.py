@@ -49,9 +49,9 @@ class RefreshTokenApiView(PublicApiView):
             response.set_cookie(
                 key='refresh_token',
                 value=str(new_refresh),
-                httponly=True, #only ofr dev
+                httponly=True, 
                 secure=True,
-                samesite='Lax',
+                samesite='None',
                 path='/',
                 max_age=24*60*60
             )
