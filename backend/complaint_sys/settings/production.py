@@ -34,19 +34,16 @@ CACHES = {
     }
 }
 
-# Security
 SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
-# Cloudinary (media only)
 CLOUDINARY_STORAGE = {
     "CLOUD_NAME": config("CLOUDINARY_CLOUD_NAME"),
     "API_KEY": config("CLOUDINARY_API_KEY"),
     "API_SECRET": config("CLOUDINARY_API_SECRET"),
 }
 
-# ——— THIS IS THE IMPORTANT PART ———
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
@@ -56,13 +53,13 @@ STORAGES = {
     },
 }
 
-# Prevent WhiteNoise from crashing on missing .map / source-map files
+# THIS LINE IS MANDATORY — it stops the AttributeError
+STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
+
 WHITENOISE_SKIP_COMPRESS_EXTENSIONS = (
     "jpg", "jpeg", "png", "gif", "webp",
     "zip", "gz", "tgz", "bz2", "tbz", "xz", "br",
-    "swf", "flv", "woff", "woff2",
-    "map",          # ← critical for the current error
+    "swf", "flv", "woff", "woff2", "map",
 )
 
-# Optional but recommended
 WHITENOISE_MANIFEST_STRICT = False
