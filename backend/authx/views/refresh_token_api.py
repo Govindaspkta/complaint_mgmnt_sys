@@ -9,7 +9,6 @@ class RefreshTokenApiView(PublicApiView):
 
     def post(self, request):
         refresh_token = request.COOKIES.get('refresh_token')
-        # print(request.COOKIES)
         if not refresh_token:
             return self.error(
                 message="Refresh token missing.Please Try again.",
