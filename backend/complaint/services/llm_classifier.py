@@ -3,8 +3,9 @@ import os
 import json
 from complaint.models import AetherixComplaints
 
-client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+from decouple import config
 
+client = Groq(api_key=config("GROQ_API_KEY"))
 
 def detect_duplicate_with_groq(new_data, threshold_candidates=20):
     print("\n===== DUPLICATE CHECK START =====")

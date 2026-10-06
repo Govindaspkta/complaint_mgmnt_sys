@@ -200,8 +200,10 @@ class ComplaintsAdminUpdateApiView(SuperAdminBaseApiView):
                     updated_complaint.status = status_upper
                     updated_complaint.save(update_fields=['status', 'is_verified'])
 
-                    #forward to the linked department
-                    forward_complaint_to_department(updated_complaint)
+                    #forward to the linked department in background.
+                    if status_upper == ComplaintStatusChoices.APPROVED:
+                        forward_complaint_to_department.delay(updated_complaint.id)
+
                 else:
                     updated_complaint.save(update_fields=['status'])
 

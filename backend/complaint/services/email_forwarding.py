@@ -1,26 +1,31 @@
+from celery import shared_task
 from django.core.mail import send_mail
 from django.conf import settings
 from django.utils import timezone
 
+from complaint.models import AetherixComplaints
 
-def forward_complaint_to_department(complaint):
-    """
-    Forwards an approved complaint to the department email
-    linked with the complaint's category.
-    """
+
+@shared_task
+def forward_complaint_to_department(complaint_id):
+
+    complaint = AetherixComplaints.objects.select_related(
+        "category__department"
+    ).get(id=complaint_id)
 
     # 1. Safety checks
     if not complaint.category:
         return False
 
     department = complaint.category.department
+
     if not department:
         return False
 
     if not department.email or not department.is_active:
         return False
 
-    # 2. Avoid sending duplicate emails
+    # 2. Avoid duplicate emails
     if complaint.is_forwarded:
         return False
 
@@ -51,13 +56,19 @@ Please take necessary action.
             fail_silently=False,
         )
 
-        # 4. Update complaint
         complaint.is_forwarded = True
         complaint.forwarded_at = timezone.now()
         complaint.forwarded_to = department.email
-        complaint.save(update_fields=["is_forwarded", "forwarded_at", "forwarded_to"])
+
+        complaint.save(
+            update_fields=[
+                "is_forwarded",
+                "forwarded_at",
+                "forwarded_to",
+            ]
+        )
 
         return True
 
-    except Exception as e:
-        return False 
+    except Exception:
+        return False
