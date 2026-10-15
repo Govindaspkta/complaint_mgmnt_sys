@@ -15,6 +15,7 @@ AUTH_USER_MODEL = 'authx.AetherixUsers' # 'app_name.ModelName'
 # Application definition
 
 INSTALLED_APPS = [
+    'channels',
     'cloudinary_storage',
     'django.contrib.staticfiles',
     'cloudinary',
@@ -46,6 +47,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'complaint_sys.urls'
 WSGI_APPLICATION = 'complaint_sys.wsgi.application'
+ASGI_APPLICATION = 'complaint_sys.asgi.application'
 
 
 
