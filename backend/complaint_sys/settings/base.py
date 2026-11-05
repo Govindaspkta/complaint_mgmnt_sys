@@ -15,6 +15,7 @@ AUTH_USER_MODEL = 'authx.AetherixUsers' # 'app_name.ModelName'
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'channels',
     'cloudinary_storage',
     'django.contrib.staticfiles',
