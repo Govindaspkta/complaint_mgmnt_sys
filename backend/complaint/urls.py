@@ -18,9 +18,10 @@ urlpatterns  = [
     path("<reference_id>/", views.ComplaintsDetailApiView.as_view(), name ="complaints-detail"),
     path("<str:reference_id>/upvote/", views.AetherixUpvote.as_view(), name='upvote-complaint'),
 
-
-
-
+    #chat
+    path("chat/conversation/",views.UserConversationApiView.as_view(),name="user-conversation"),
+    path("chat/admin/conversations/",views.AdminConversationListApiView.as_view(),name="admin-conversations"),
+    path("chat/conversation/<int:conversation_id>/messages/",views.ConversationMessagesApiView.as_view(),name="conversation-messages"),
 
 ]
 

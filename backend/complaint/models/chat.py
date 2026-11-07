@@ -24,6 +24,13 @@ class Conversation(models.Model):
         db_table = "chat_conversations"
         ordering = ["-updated_at"]
 
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user"],
+                name="unique_chat_conversation_per_user"
+            )
+        ]
+
     def __str__(self):
         return f"Conversation - {self.user.username}"
 
