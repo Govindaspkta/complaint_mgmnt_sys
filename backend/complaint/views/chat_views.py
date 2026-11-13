@@ -125,3 +125,50 @@ class ConversationMessagesApiView(BaseApiView):
 
         except Exception as exe:
             return self.internal_server_error(str(exe))
+
+    def post(self, request, conversation_id):
+        try:
+            conversation = Conversation.objects.filter(
+                id=conversation_id
+            ).filter(
+                Q(user=request.user) | Q(admin=request.user)
+            ).first()
+
+            if (
+                not conversation
+                and request.user.roles == "ADMIN"
+            ):
+                conversation = Conversation.objects.filter(
+                    id=conversation_id
+                ).first()
+
+            if not conversation:
+                return self.error(
+                    "Conversation not found or access denied.",
+                    status_code=status.HTTP_404_NOT_FOUND
+                )
+
+            serializer = ChatMessageSerializer(
+                data=request.data,
+                context={"request": request}
+            )
+
+            if serializer.is_valid():
+                serializer.save(
+                    conversation=conversation,
+                    sender=request.user
+                )
+
+                return self.success(
+                    "Message sent successfully.",
+                    data=serializer.data,
+                    status_code=status.HTTP_201_CREATED
+                )
+
+            return self.error(
+                serializer.errors,
+                status_code=status.HTTP_400_BAD_REQUEST
+            )
+
+        except Exception as exe:
+            return self.internal_server_error(str(exe))    
