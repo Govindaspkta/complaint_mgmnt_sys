@@ -49,8 +49,11 @@ function App() {
           <Route path="/complaints/:reference_id" element={<ProtectedRoute><ComplaintDetail /></ProtectedRoute>} />
           <Route path="/hotspots" element={<ProtectedRoute><HotspotComplaints /></ProtectedRoute>} />
           <Route path="/all-approved-complaints" element={<ProtectedRoute><AllApprovedComplaints /></ProtectedRoute>} />
-        </Route>
 
+         {/* USER SUPPORT CHAT */}
+          <Route path="/chat" element={<ProtectedRoute> <ChatPage /> </ProtectedRoute>} />
+        </Route>
+    
         {/* ADMIN ROUTES */}
         <Route
           path="/admin"
