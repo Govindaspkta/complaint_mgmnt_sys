@@ -12,7 +12,6 @@ DEBUG = False
 SECRET_KEY = config("SECRET_KEY")
 
 ALLOWED_HOSTS = [h.strip() for h in config("ALLOWED_HOSTS", default="").split(",") if h.strip()]
-
 # Database: one DATABASE_URL (Neon) instead of separate DB_* variables
 DATABASES = {
     "default": dj_database_url.parse(
@@ -58,6 +57,7 @@ STORAGES = {
         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
 }
+STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
 
 CELERY_BROKER_URL = os.environ.get("CELERY_BROKER_URL")
 CELERY_RESULT_BACKEND = os.environ.get("CELERY_RESULT_BACKEND")
