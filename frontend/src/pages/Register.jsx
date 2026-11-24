@@ -56,9 +56,9 @@ export default function Register() {
 
     try {
       await axios.post(
-        'http://127.0.0.1:8000/authx/register/',
-        formData
-      );
+  `${import.meta.env.VITE_API_URL}/authx/register/`,
+  formData
+);
 
       alert('✅ Registration Successful!');
       navigate('/login');
