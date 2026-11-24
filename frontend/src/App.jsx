@@ -20,6 +20,7 @@ import AdminAllComplaints from './pages/Admin/AdminAllComplaints';
 import ProtectedRoute from './components/ProtectedRoute';
 import ComplaintDetail from './pages/ComplaintDetails';
 import HotspotComplaints from './pages/HotspotComplaint';
+import ChatPage from './pages/Chat';
 
 // User layout
 function UserLayout() {
